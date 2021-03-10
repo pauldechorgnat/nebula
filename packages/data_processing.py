@@ -119,3 +119,34 @@ def one_hot_encoding(dataframe: pd.DataFrame, reset_index: bool = True)-> pd.Dat
     except KeyError:
         return dataframe
     return encoded_dataframe
+
+
+
+def get_labels(values: [(int, float)], 
+               labels: [str] = ['Fish', 'Flower', 'Gravel', 'Sugar'],
+               threshold: [float] = [0.5, 0.5, 0.5, 0.5])-> (str, None):
+    """Generation d'un label complet correspondant aux valeurs superieures
+       ou egales aux seuils indiques
+
+     Paramètre
+     ----------
+     values  : valeurs des classes, 
+               exemple [1, 0, 0, 1] s'il s'agit d'un one hot encoding
+                    ou [0.65, 0.34, 0.21, 0.87] s'il s'agit de probabilites
+     labels : textes des labels a concatener
+     threshold : seuils a appliquer, tout est a 0.5 par defaut
+
+     Retour
+     ----------
+     str : label complet
+    """ 
+    
+    try:
+        full_label = []
+        for i in range(len(values)):
+            if values[i]>=threshold[i]:
+                full_label.append(labels[i]) 
+    except (IndexError, TypeError):
+        return None
+    
+    return ','.join(filter(None, full_label))
