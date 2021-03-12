@@ -34,7 +34,7 @@ def copy_data_from_drive(from_path: str = '/content/drive/MyDrive',
         source = os.path.join(from_path, filename)     #initilisation fichier source
         target = os.path.join(to_path, filename)       #initialisation fichier cible
         copyfile(source, target)                       #copie du fichier
-        unpack_archive(target)                         #decompression de l'archive  
+        unpack_archive(target)                         #decompression de l'archive
         os.remove(target)                              #suppression de l'archive
     except FileNotFoundError:
         return False
@@ -53,14 +53,14 @@ def load_train(filename: str = 'train.csv')-> pd.DataFrame:
      Retour
      ----------
      dataframe : donnees chargees
-    """  
+    """
 
-    train = pd.read_csv(filename)     #Lecture du fichier 
+    train = pd.read_csv(filename)     #Lecture du fichier
     return train
 
 
 
-def label_parsing(dataframe: pd.DataFrame, sep: str = '_')-> pd.DataFrame:
+def label_parsing(dataframe: pd.DataFrame, sep: str = '_', drop_na: bool = True)-> pd.DataFrame:
     """Le label de la classe est isolee du nom de l'image, generant ainsi
        deux colonnes "image" et "label". La colonne "Image_Label" est
        ensuite supprimee.
@@ -72,13 +72,14 @@ def label_parsing(dataframe: pd.DataFrame, sep: str = '_')-> pd.DataFrame:
      Retour
      ----------
      dataframe : dataframe dont les labels ont ete isoles
-    """  
+    """
 
     try:
         parsed_df = dataframe
         parsed_df['image'] = parsed_df['Image_Label'].apply(lambda x: x.split(sep)[0])
         parsed_df['label'] = parsed_df['Image_Label'].apply(lambda x: x.split(sep)[1])
         parsed_df = parsed_df.drop(['Image_Label'], axis=1)
+        if drop_na: parsed_df.dropna(inplace = True)
     except KeyError:
         return dataframe
     return parsed_df
@@ -87,7 +88,7 @@ def label_parsing(dataframe: pd.DataFrame, sep: str = '_')-> pd.DataFrame:
 
 def one_hot_encoding(dataframe: pd.DataFrame, reset_index: bool = True)-> pd.DataFrame:
     """Les classes de nuages subissent un codage disjonctif, puis les donnees
-       son agregees par image. Les colonnees "label" et "EncodedPixels" sont 
+       son agregees par image. Les colonnees "label" et "EncodedPixels" sont
        par ailleurs supprimees.
 
      Paramètre
@@ -99,12 +100,12 @@ def one_hot_encoding(dataframe: pd.DataFrame, reset_index: bool = True)-> pd.Dat
      Retour
      ----------
      dataframe : dataframe modifie
-    """  
+    """
 
     try:
         #On effectue une dichotomisation des classes de nuages
         encoded_dataframe = dataframe
-        encoded_dataframe= encoded_dataframe.join(pd.get_dummies(encoded_dataframe['label']))
+        encoded_dataframe = encoded_dataframe.join(pd.get_dummies(encoded_dataframe['label']))
 
         #On supprime ensuite les colonnes "encoded Pixels" et "label", inutiles pour l'aggregation qui suit
         encoded_dataframe = encoded_dataframe.drop(['EncodedPixels', 'label'], axis=1)
@@ -122,7 +123,7 @@ def one_hot_encoding(dataframe: pd.DataFrame, reset_index: bool = True)-> pd.Dat
 
 
 
-def get_labels(values: [(int, float)], 
+def get_labels(values: [(int, float)],
                labels: [str] = ['Fish', 'Flower', 'Gravel', 'Sugar'],
                threshold: [float] = [0.5, 0.5, 0.5, 0.5])-> (str, None):
     """Generation d'un label complet correspondant aux valeurs superieures
@@ -130,7 +131,7 @@ def get_labels(values: [(int, float)],
 
      Paramètre
      ----------
-     values  : valeurs des classes, 
+     values  : valeurs des classes,
                exemple [1, 0, 0, 1] s'il s'agit d'un one hot encoding
                     ou [0.65, 0.34, 0.21, 0.87] s'il s'agit de probabilites
      labels : textes des labels a concatener
@@ -139,14 +140,14 @@ def get_labels(values: [(int, float)],
      Retour
      ----------
      str : label complet
-    """ 
-    
+    """
+
     try:
         full_label = []
         for i in range(len(values)):
             if values[i]>=threshold[i]:
-                full_label.append(labels[i]) 
+                full_label.append(labels[i])
     except (IndexError, TypeError):
         return None
-    
+
     return ','.join(filter(None, full_label))
