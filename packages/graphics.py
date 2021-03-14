@@ -1,4 +1,8 @@
 import numpy as np
+import os
+import cv2
+import PIL
+from PIL import Image
 
 
 #-----------------------------------------------------------
@@ -83,6 +87,58 @@ def surfaceFromRle(rle: str) -> int:
     return surface
 
 
+def imshowSuperimposed(repImage: str, nomImage: str, rle: str, classe: str, rleSize: tuple = (2100,1400))-> dict:
+    """Superposition d'une image RGB et de sa segmentation RLE, colorée par classe
+
+     Paramètre
+     ----------
+     repImage : nom du répertoire vers les images
+     nomImage : nom de l'image à afficher
+     rle : encodage RLE du masque à superposer
+     classe : nom de la classe du masque, parmi {'Fish', 'Flower', 'Gravel', 'Sugar'}
+     rleSize : taille du masque RLE en pixels
+     
+     Retour
+     ----------
+     dict : {'Image': image ndarray ('uint8') RGB avec sa segmentation,
+             'Label': nom de l'image / classe de segmentation,
+             'Segmentation': image ndarray ('uint8') RGB du masque de segmentation}
+    """
+    
+    #Initialisation du dictionnaire des couleurs (sur base de RGB)
+    couleurs = {'Fish':  2, #blue
+                'Flower':0, #red
+                'Gravel':1, #green
+                'Sugar':slice(0,2,1)} #yellow
+
+    #Chargement de l'image demandée
+    path = os.path.join(repImage, nomImage)
+    img = Image.open(path)
+
+    #Si la taille de l(image est différente de celle du masque,
+    #on met l'image à l'échelle du masque
+    if img.size != rleSize :
+        img = img.resize(size = rleSize, resample = PIL.Image.BILINEAR ).convert('RGB')
+
+    #Chargement du masque à partir du codage RLE
+    mask = rleToMask(rle, shape = rleSize)
+
+    #Coloration du masque
+    couleur = couleurs[classe]              # on récupère la couleur de la classe
+    imgMask = np.zeros(rleSize[::-1]+(3,))  # initialisation du masque à 0
+    imgMask[:,:,couleur] = np.ones(rleSize[::-1]) * mask  # modification du masque vers trois channels
+    imgMask = Image.fromarray(imgMask.astype('uint8')).convert('RGB')
+
+    #Superposition de l'image et de son masque
+    #Images converties en numpy.array pour utiliser la fonction addWeighted d'OpenCV
+    #Cette fonction est la plus pratique pour conserver l'alpha de l'image originale à 1
+    imgOverlay = cv2.addWeighted(np.array(img), 1, np.array(imgMask), 0.5, 0.0)
+
+    dico = {'Image' : imgOverlay,
+            'Label' : nomImage + ' / ' + classe,
+            'Segmentation': np.array(imgMask)}
+    
+    return dico
 
 
 
