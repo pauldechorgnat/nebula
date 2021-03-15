@@ -1,15 +1,14 @@
 #-----------------------------------------------------------
 # PROJET NEBULA
 # Datascientest DS continu oct. 2020
-# Librairie : DATA_GENERATION
-#             Split des donnees
-#             DataGeneration avec ou sans augmentation
+# Fichier __init__.py : mise en forme de la librairie packages
+#
 # Auteurs : Cathy Baynaud Samson
 #           José Castro
 #           Yann Bernery
 #           Ludovic Changeon
 #-----------------------------------------------------------
 
-from packages.data_processing import *
-from packages.graphics import *
-from packages.data_generation import *
+from .data_processing import *
+from .graphics import *
+from .data_generation import *
