@@ -17,45 +17,34 @@ from PIL import Image
 #-----------------------------------------------------------
 
 
-def rleToMask(rle: str, shape:tuple =(2100, 1400)) -> np.ndarray:
-    """Conversion d'un codage RLE en masque
+def rleToMask(rle: str, shape: tuple  =(1400, 2100)) -> np.ndarray:
+    """
+    Conversion d'un codage RLE en masque
 
      Paramètre
      ----------
-     rle : encodage RLE a convertir 
-     shape : format du masque de sortie
+     rle   : encodage RLE a convertir 
+     shape : format du masque
 
      Retour
      ----------
      np.array : masque
     """
-    
-    #Le code RLE est splite a chaque espace
-    #puis on convertit en entier chaque chaine extraite 
-    rleNumbers = [int(numstring) for numstring in rle.split(' ')]
-    
-    #Le tableau obtenu est redimensionner sur 2 colonnes, le nombre
-    #de lignes est determine par numpy d'ou -1 
-    #Sur chaque ligne nous avons le debut de la suite de pixels a 
-    #passer en clair ainsi que le nombre de pixels concernes
-    rlePairs = np.array(rleNumbers).reshape(-1,2)
-    
-    #Une instance d'image est initialisee avec uniquement
-    #des zeros sur la base des dimensions passees en parametre    
-    img = np.zeros(shape[0]*shape[1],
-                   dtype=np.uint8)
 
-    #Pour chaque pairs, on passe les pixels concernes en blanc
-    for index,length in rlePairs:
-        #index -= 1
+    width, height = shape[:2]
+    
+    mask= np.zeros( width*height ).astype(np.uint8)
+    
+    array = np.asarray([int(x) for x in rle.split()])
+    starts = array[0::2]
+    lengths = array[1::2]
+
+    current_position = 0
+    for index, start in enumerate(starts):
+        mask[int(start):int(start+lengths[index])] = 1
+        current_position += lengths[index]
         
-        img[index:index+length] = 255
-    
-    #Pour finir l'inage est redimensionnee aux dimensions voulues
-    img = img.reshape(shape)
-    img = img.T
-    
-    return img
+    return mask.reshape(height, width).T
 
 
 
