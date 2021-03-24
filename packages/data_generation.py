@@ -45,7 +45,8 @@ def makeGen(X, y, folder: str = 'train_images/',
                   augment: bool = False, 
                   batchSize: int = 32, 
                   target_size: tuple = (260, 260), 
-                  nb_canaux: int = 1) -> ImageDataGenerator:
+                  nb_canaux: int = 1,
+                  shuffle: bool = False) -> ImageDataGenerator:
     
     """Generation des images 
 
@@ -58,6 +59,7 @@ def makeGen(X, y, folder: str = 'train_images/',
      batchSize   : taille des batchs de sortie
      target_size : taille cible des images
      nb_canaux   : nombre de canaux (1: nuances de gris, 3: rgb)
+     shuffle     : melange aleatoire des enregistrements
 
      Retour
      ----------
@@ -77,7 +79,10 @@ def makeGen(X, y, folder: str = 'train_images/',
 
     # si X.shape[1] <> 1, alors les images ont été chargées en mémoire
     if X.shape[1]!=1:
-        generator = datagen.flow(X.reshape((-1,target_size[0],target_size[1],nb_canaux)), y,  batch_size = batchSize)
+        generator = datagen.flow(X.reshape((-1,target_size[0],target_size[1],nb_canaux)), 
+                                 y,  
+                                 batch_size = batchSize,
+                                 shuffle = shuffle)
 
     else:
         yTemp = y.copy(deep = True)
@@ -89,7 +94,8 @@ def makeGen(X, y, folder: str = 'train_images/',
                                                 x_col = 'imageName',
                                                 class_mode = 'raw', 
                                                 y_col = y.columns,
-                                                batch_size = batchSize)
+                                                batch_size = batchSize,
+                                                shuffle = shuffle)
     return generator
 
 
