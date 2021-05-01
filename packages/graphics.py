@@ -20,11 +20,12 @@ def np_transposition(image: np.ndarray, input_shape: tuple) -> np.ndarray:
     """
     Transposition d'un np array afin d'inverser les dimensions (hauteur, largeur) 
     vers (largeur, hauteur).
+    Si les dimensions initiales sont différentes de (height,width), un redimensionnement est effectué.
 
      Paramètre
      ----------
      image : np array a transposer 
-     input_shape : dimensions de l'image
+     input_shape : dimensions de l'image cible
 
      Retour
      ----------
@@ -111,9 +112,9 @@ def list_rleToMask(rle_list:[str], input_shape:tuple, reshape: tuple = None)  ->
     for i, rle in enumerate(rle_list):
         if type(rle) is str:
             if reshape is None:
-                mask_list[:, :, i] = packages.rleToMask(rle, input_shape)
+                mask_list[:, :, i] = rleToMask(rle, input_shape)
             else:
-                mask = packages.rleToMask(rle, input_shape)
+                mask = rleToMask(rle, input_shape)
                 reshaped_mask = np_transposition(mask, reshape)
                 mask_list[:, :, i] = reshaped_mask
     
