@@ -90,7 +90,6 @@ class diceMetric(tf.keras.metrics.Metric):
         super().__init__(name = name , **kwargs)
         self.diceM = 0
         self.classWeights = tf.cast(classWeights,'float32')
-        #self.name = name
     def update_state(self, y_true:tf.Tensor, y_pred:tf.Tensor, sample_weight=None):
         self.diceM = dice(y_true, y_pred, self.classWeights)
     def result(self):
