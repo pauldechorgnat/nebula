@@ -87,9 +87,10 @@ class diceMetric(tf.keras.metrics.Metric):
         Coefficient de Dice (https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice)
     '''
     def __init__(self, name:str = 'diceM', classWeights : np.ndarray = np.ones(4), **kwargs):
-        super().__init__(name :str = name, **kwargs)
+        super().__init__(name = name , **kwargs)
         self.diceM = 0
         self.classWeights = tf.cast(classWeights,'float32')
+        #self.name = name
     def update_state(self, y_true:tf.Tensor, y_pred:tf.Tensor, sample_weight=None):
         self.diceM = dice(y_true, y_pred, self.classWeights)
     def result(self):
@@ -115,7 +116,7 @@ class diceLoss(tf.keras.losses.Loss):
         loss = 1. - m (m : Coefficient de Dice (https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice))
     '''
     def __init__(self, name: str ='diceL', classWeights : np.ndarray = np.ones(4), **kwargs):
-        super().__init__(name:str = name, **kwargs)
+        super().__init__(name = name, **kwargs)
         self.classWeights = tf.cast(classWeights,'float32')
     def call(self, y_true : tf.Tensor, y_pred : tf.Tensor):
         perte = 1. - dice(y_true, y_pred, self.classWeights)
