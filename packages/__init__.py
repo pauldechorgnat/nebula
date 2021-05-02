@@ -12,3 +12,4 @@
 from .data_processing import *
 from .graphics import *
 from .data_generation import *
+from .model_evaluation import *

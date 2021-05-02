@@ -16,7 +16,26 @@ from PIL import Image
 #           Ludovic Changeon
 #-----------------------------------------------------------
 
+def np_transposition(image: np.ndarray, input_shape: tuple) -> np.ndarray:
+    """
+    Transposition d'un np array afin d'inverser les dimensions (hauteur, largeur) 
+    vers (largeur, hauteur).
+    Si les dimensions initiales sont différentes de (height,width), un redimensionnement est effectué.
 
+     Paramètre
+     ----------
+     image : np array a transposer 
+     input_shape : dimensions de l'image cible
+
+     Retour
+     ----------
+     np.array : image transposee
+    """
+
+    height, width = input_shape
+    return cv2.resize(image, (width, height))
+
+    
 def rleToMask(rle: str, shape: tuple  =(1400, 2100)) -> np.ndarray:
     """
     Conversion d'un codage RLE en masque
@@ -47,7 +66,92 @@ def rleToMask(rle: str, shape: tuple  =(1400, 2100)) -> np.ndarray:
     return mask.reshape(height, width).T
 
 
+def maskToRle(mask: np.ndarray) -> str:
+    """
+    Conversion d'un masque en encodage RLE
+    La presence d'un pixel dans le masque se materialise par la valeur 1,
+    autrement la valeur reste a 0
 
+     Paramètre
+     ----------
+     mask : masque a encoder
+
+     Retour
+     ----------
+     str : encodage RLE
+    """
+
+    valeur_pixels = mask.T.flatten()
+    valeur_pixels = np.concatenate([[0], valeur_pixels, [0]])
+    segment_rle = np.where(valeur_pixels[1:] != valeur_pixels[:-1])[0] + 1
+    segment_rle[1::2] -= segment_rle[::2]
+    return ' '.join(str(x) for x in segment_rle)
+
+
+def list_rleToMask(rle_list:[str], input_shape:tuple, reshape: tuple = None)  -> np.ndarray :
+    """
+    Conversion d'une liste d'encodage RLE en liste de masques
+
+     Paramètre
+     ----------
+     rle_list    : liste des encodage RLE a convertir
+     input_shape : taille d'origine des masques
+     reshape     : facultatif, taille desiree en sortie
+
+     Retour
+     ----------
+      np.ndarray : liste des masques
+    """  
+
+    nb_rle = len(rle_list)
+    if reshape is None:
+        mask_list = np.zeros((*input_shape, nb_rle))
+    else:
+        mask_list = np.zeros((*reshape, nb_rle))
+    
+    for i, rle in enumerate(rle_list):
+        if type(rle) is str:
+            if reshape is None:
+                mask_list[:, :, i] = rleToMask(rle, input_shape)
+            else:
+                mask = rleToMask(rle, input_shape)
+                reshaped_mask = np_transposition(mask, reshape)
+                mask_list[:, :, i] = reshaped_mask
+    
+    return mask_list
+    
+
+def list_maskToRle(mask_list:np.ndarray , reshape:tuple = None) -> [str]:
+    """
+    Encodage d'une liste de masques en codes RLE
+
+     Paramètre
+     ----------
+     mask_list   : liste des masques a encoder
+     reshape     : facultatif, taille desiree des masques avant encodage
+
+     Retour
+     ----------
+      liste de str : liste des codes RLE
+    """ 
+
+    width, height, nb_mask = mask_list.shape
+    
+    rle_list = []
+    
+    for i in range(nb_mask):
+        mask = mask_list[:, :, i]
+        
+        if reshape:
+            mask = mask.astype(np.float32)
+            mask = np_transposition(mask, reshape).astype(np.int64)
+        
+        rle = maskToRle(mask)
+        rle_list.append(rle)
+        
+    return rle_list
+    
+        
 def surfaceFromRle(rle: str) -> int:
     """Determination de la surface (en pixels) converte par le masque correspondage 
        a l'encodage RLE specifie en parametre
