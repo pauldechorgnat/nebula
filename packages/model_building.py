@@ -26,7 +26,7 @@ def builClassifdModel():
 
         Retour
         ----------
-        tf.keras.Model
+        keras.Model
     '''
     # Model sequentiel
     model = Sequential()
@@ -152,9 +152,9 @@ class NebulaClassifModel(Model):
     return self.model(inputs)
 
   def compile(self,
-              optimizer: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam,
-              loss: tf.keras.losses.Loss = 'binary_crossentropy',
-              metrics: tf.keras.metrics.Metric = 'categorical_accuracy',
+              optimizer: keras.optimizers.Optimizer = keras.optimizers.Adam,
+              loss: keras.losses.Loss = 'binary_crossentropy',
+              metrics: keras.metrics.Metric = 'categorical_accuracy',
               learning_rate: float=0.001, *args, **kwargs):
     if type(optimizer) == str:
       self.model.compile(optimizer = optimizer,
