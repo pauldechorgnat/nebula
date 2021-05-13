@@ -3,6 +3,7 @@ from keras.layers import Dense, Dropout, Flatten
 from keras.layers.convolutional import Conv2D, MaxPooling2D
 from keras.models import Sequential, Model
 from keras import callbacks
+import numpy as np
 
 #-----------------------------------------------------------
 # PROJET NEBULA
@@ -16,13 +17,14 @@ from keras import callbacks
 #-----------------------------------------------------------
 
 
-def builClassifdModel():
+def builClassifdModel(tx: int = 175, ty: int = 262):
     '''
         Fonction de création de l'architecture du modèle de classification
             "NebulaClassificationPhase2"
         Paramètre
         ----------
-        None
+        tx : nombre de pixels en x de l'image
+        ty : nombre de pixels en y de l'image
 
         Retour
         ----------
