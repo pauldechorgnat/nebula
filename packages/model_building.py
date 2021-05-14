@@ -17,7 +17,7 @@ import numpy as np
 #-----------------------------------------------------------
 
 
-def builClassifdModel(tx: int = 175, ty: int = 262):
+def builClassifModel(tx: int = 175, ty: int = 262):
     '''
         Fonction de création de l'architecture du modèle de classification
             "NebulaClassificationPhase2"
@@ -126,11 +126,11 @@ class NebulaClassifModel(Model):
           metrics : keras.metric.Metric ou str (par ex. 'categorical_accuracy')
           learning_rate : 0.001
       predict(x, filter, threshold)
-          x : générateur ou np.ndarray renvoyant :
+          x : générateur ou np.ndarray renvoyant X, y :
               X : [batchSize, X-dim, Y-dim, 1]
               y : [batchsize, 4]
           filter : True pour filtrer les prédictions
-          threshold : si y > threshold: 1, sinon 0
+          threshold : si y >= threshold: 1, sinon 0
       fit(...)
           Voir documentation Keras.
           Par défaut, callbacks=[EarlyStopping(),
@@ -139,14 +139,17 @@ class NebulaClassifModel(Model):
 
       Retour
       ----------
-      En fonction des méthods...
+      N/A
   '''
   def __init__(self, autoInit: bool = True,
-               initWeights: str = 'chkpt_classif/checkpoint3'):
-    super().__init__()
+               initWeights: str = 'chkpt_classif/checkpoint3',
+               callbacks: list = [],
+               *args, **kwargs):
+    super().__init__(*args, **kwargs)
     self.autoInit = autoInit
     self.initWeights = initWeights
-    self.model = builClassifdModel()
+    self.model = builClassifModel()
+    self.callbacks = callbacks
     if self.autoInit:
       self.model.load_weights(self.initWeights)
 
@@ -157,34 +160,35 @@ class NebulaClassifModel(Model):
               optimizer: keras.optimizers.Optimizer = keras.optimizers.Adam,
               loss: keras.losses.Loss = 'binary_crossentropy',
               metrics: keras.metrics.Metric = 'categorical_accuracy',
-              learning_rate: float=0.001, *args, **kwargs):
+              learning_rate: float = 0.001, *args, **kwargs):
     if type(optimizer) == str:
-      self.model.compile(optimizer = optimizer,
+      super().compile(optimizer = optimizer,
                 loss = loss,
                 metrics = metrics, *args, **kwargs)
     else:
-      self.model.compile(optimizer = optimizer(learning_rate=learning_rate),
+      super().compile(optimizer = optimizer(learning_rate=learning_rate),
                       loss = loss,
                       metrics = metrics, *args, **kwargs)
     return self.model
 
   def predict(self, x,
               filter: bool = False,
-              threshold: float = 0.5):
+              threshold: float = 0.5,
+              *args, **kwargs):
     if not filter:
-      return super().predict(x)
+      return super().predict(x, *args, **kwargs)
     else:
-      return np.where(super().predict(x)>=threshold, 0, 1)
+      return np.where(super().predict(x, *args, **kwargs)>=threshold, 0, 1)
 
   def fit(self, x = None, y = None, batch_size=32,
-          epochs=1, verbose=1, validation_data = None,
-          steps_per_epoch =None, validation_steps =None,
-          callbacks=[cb_earlyStopping(),
-                     cb_modelCheckPoint(filename = 'ckptSave'),
-                     cb_reduceLr()],
+          epochs = 1, verbose = 1, validation_data = None,
+          steps_per_epoch = None, validation_steps = None,
+          callbacks = [cb_earlyStopping(),
+                       cb_modelCheckPoint(filename = 'ckptSave'),
+                       cb_reduceLr()],
           class_weight = {0: 1., 1: 1., 2: 1., 3: 1.},
           *args, **kwargs):
-    training = self.model.fit(x = x, y = y, batch_size = batch_size,
+    training = super().fit(x = x, y = y, batch_size = batch_size,
                 epochs=epochs, verbose=verbose,
                 callbacks = callbacks,
                 class_weight = class_weight,
