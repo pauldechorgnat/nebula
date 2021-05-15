@@ -3,6 +3,8 @@ import os
 import cv2
 import PIL
 from PIL import Image
+from skimage.segmentation import mark_boundaries
+from skimage.measure import label, regionprops
 
 
 #-----------------------------------------------------------
@@ -240,4 +242,85 @@ def imshowSuperimposed(nomImage: str, rle: str = '', classe: str = 'Fish', repIm
     return dico
 
 
+def trace_boundingBox(image : np.ndarray,
+                      mask : np.ndarray,
+                      color : tuple = (0,0,255),
+                      width : int = 10):
+    """
+    Draw a bounding box on image
 
+     Parameter
+     ----------
+     image : image on which we want to draw the box 
+     mask  : mask to process
+     color : color we want to use to draw the box edges
+     width : box edges's width
+
+    """
+    
+    lbl = label(mask)
+    props = regionprops(lbl)
+    for prop in props:
+        coin1 = (prop.bbox[3], prop.bbox[2])
+        coin2 = (prop.bbox[1], prop.bbox[0])
+        cv2.rectangle(image, coin2, coin1, color, width)
+
+        
+def maskInColor(image : np.ndarray, 
+                mask : np.ndarray, 
+                color : tuple = (0,0,255), 
+                alpha : float=0.2) -> np.ndarray:
+    """
+    Superposition d'un masque sur une image
+
+     Parameter
+     ----------
+     image : image sur laqelle le masque doit etre superpose 
+     mask  : masque a superposer
+     color : colour du masque
+     alpha : coefficient d'opacite
+
+     Return
+     ----------
+     np.array : image resultant de la superposition
+    """
+    
+    image = np.array(image)
+    H,W,C = image.shape
+    mask    = mask.reshape(H,W,1)
+    overlay = image.astype(np.float32)
+    overlay =  255-(255-overlay)*(1-mask*alpha*color/255 )
+    overlay = np.clip(overlay,0,255)
+    overlay = overlay.astype(np.uint8)
+    return overlay
+
+
+def cloudInColor(image : np.ndarray, 
+                 mask : np.ndarray, 
+                 color : tuple = (0,0,255),
+                 alpha : float = 0.7, 
+                 threshold : int = 90) -> np.ndarray:
+    """
+    Coloration des pixels d'une image sur la base d'un seuil
+
+     Parameter
+     ----------
+     image : image a colorer 
+     mask  : masque de traitement
+     color : couleur a appliquer
+     alpha : coefficient d'opacite
+     threshold : seuil
+     
+     Return
+     ----------
+     np.array : image coloree
+    """
+        
+    imZone = cv2.bitwise_and(image, image, mask=mask)
+    image_gray = cv2.cvtColor(imZone, cv2.COLOR_RGB2GRAY)
+    (thresh, blackAndWhiteImage) = cv2.threshold(image_gray, 
+                                                 threshold, 
+                                                 255, 
+                                                 cv2.THRESH_BINARY)
+    inlay = maskInColor(image, blackAndWhiteImage, color=color, alpha=alpha)
+    return inlay
