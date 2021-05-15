@@ -6,7 +6,7 @@ import numpy as np
 #-----------------------------------------------------------
 # PROJET NEBULA
 # Datascientest DS continu oct. 2020
-# Librairie : model_evaluation
+# Librairie : MODEL_EVALUATION
 #             Evaluation de modèle de segmentation d'images
 # Auteurs : Cathy Baynaud Samson
 #           José Castro
