@@ -25,7 +25,7 @@ It is based on the following Kaggle competition:
 <p>Data in support to this work can be found below:</p>
 <ul type="circle">
 <li><a href="https://github.com/DataScientest/nebula/tree/master/packages"> Library of functions and classes </a></li>
-<li><a href="https://github.com/DataScientest/nebula/blob/master/docPackages/index.html"> Library help </a></li>
+<li><a href="https://htmlpreview.github.io/?https://github.com/DataScientest/nebula/blob/master/docPackages/index.html"> Library help </a></li>
 </ul>
 
 <p>Notes:</p>
