@@ -14,6 +14,25 @@ import numpy as np
 #           Ludovic Changeon
 #-----------------------------------------------------------
 
+def iou_coef(y_true, y_pred, smooth=1):
+    '''
+        Metrique Intersection Over Union
+
+        Paramètre
+        ----------
+        y_true : cibles
+        y_pred : prédictions du modèle
+        smooth : parametre de robustesse aux outliners
+
+        Retour
+        ----------
+        Coefficient IOU
+    '''
+    intersection = K.sum(K.abs(y_true * y_pred), axis=[1,2,3])
+    union = K.sum(y_true,[1,2,3])+K.sum(y_pred,[1,2,3])-intersection
+    iou = K.mean((intersection + smooth) / (union + smooth), axis=0)
+    return iou
+
 def tf_num(in1 : np.ndarray, in2 : np.ndarray):
     '''
         Fonction de support pour le calcul du coefficient de Dice
