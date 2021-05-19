@@ -22,13 +22,18 @@ It is based on the following Kaggle competition:
 <p style="text-indent:20px;">More to come...</p>
 <p></p>
 
+<p>Data in support to this work can be found below:</p>
+<ul type="circle">
+<li><a href="https://github.com/DataScientest/nebula/tree/master/packages"> Library of functions and classes </a></li>
+<li><a href="https://htmlpreview.github.io/?https://github.com/DataScientest/nebula/blob/master/docPackages/index.html"> Library help </a></li>
+</ul>
+
 <p>Notes:</p>
 <ul type="circle">
 <li>Should nothing happen after a click, right-click the badge, then "open in new tab".</li>
-<li>Google Colab will require access to your Github account on your first access.</li>
+<li>Google Colab will request access to your Github account on your first access.</li>
 </ul>
 
 # Us
 
-We are a group of students at DataScientest
-<https://datascientest.com/>
+We are a group of students from DataScientest (<https://datascientest.com/>)
