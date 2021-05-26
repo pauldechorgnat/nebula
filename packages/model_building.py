@@ -1,5 +1,4 @@
-from tensorflow.keras.layers import Dense, Dropout, Flatten
-from tensorflow.keras.layers.convolutional import Conv2D, MaxPooling2D
+from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras import callbacks
 import numpy as np
