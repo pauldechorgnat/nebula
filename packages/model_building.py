@@ -99,31 +99,30 @@ def cb_reduceLr(patience=3, factor=0.08, monitor='val_loss'):
                                          verbose=2,
                                          mode='min')
 
-class NebulaClassifModel(Model):
+class NebulaWrapper(Model):
   '''
-      Création d'un modèle de classification selon architecture et poids :
-        "nebula_phase2_multiClassification"
-      Si l'on charge les poids, inutile de réentraîner le modèle
+      Surcharge d'un modele avec les fonctions de base
+      Note : Si l'on charge les poids, inutile de réentraîner le modèle
 
       Utilisation
       ----------
-      model = ClassifModel(autoInit = True)
-      model.compile()
-      model.fit(generator,
+      mwrapper = NebulaWrapper(model, autoInit = True)
+      mwrapper.compile()
+      mwrapper.fit(generator,
                 epochs, batch_size)
-      pred = model.predict(testGen,
+      pred = mwrapper.predict(testGen,
                           filter = True,
                           threshold = 0.5)
       Méthodes
       ----------
-      __init__(autoInit, initWeights)
+      __init__(model, autoInit, initWeights)
+          model : instance du modele a wrapper
           autoInit : pour charger les poids pré-entraînés
           initWeights : chemin vers le fichier de poids pré-entraînés
       compile(optimizer, loss, metrics)
-          optimizer : tensorflow.keras.optimizers.Optimizer ou str (par ex. 'adam')
-          loss : tensorflow.keras.losses.Loss ou str (par ex. 'binary_crossentropy')
-          metrics : tensorflow.keras.metric.Metric ou str (par ex. 'categorical_accuracy')
-          learning_rate : 0.001
+          optimizer : keras.optimizers.Optimizer ou str (par ex. 'adam')
+          loss : keras.losses.Loss ou str (par ex. 'binary_crossentropy')
+          metrics : keras.metric.Metric ou str (par ex. 'categorical_accuracy')
       predict(x, filter, threshold)
           x : générateur ou np.ndarray renvoyant X, y :
               X : [batchSize, X-dim, Y-dim, 1]
@@ -140,14 +139,16 @@ class NebulaClassifModel(Model):
       ----------
       N/A
   '''
-  def __init__(self, autoInit: bool = True,
+  def __init__(self,
+               model,
+               autoInit: bool = True,
                initWeights: str = 'chkpt_classif/checkpoint3',
                callbacks: list = [],
                *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.autoInit = autoInit
     self.initWeights = initWeights
-    self.model = builClassifModel()
+    self.model = model
     self.callbacks = callbacks
     if self.autoInit:
       self.model.load_weights(self.initWeights)
@@ -156,18 +157,13 @@ class NebulaClassifModel(Model):
     return self.model(inputs)
 
   def compile(self,
-              optimizer: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam,
-              loss: tf.keras.losses.Loss = 'binary_crossentropy',
-              metrics: tf.keras.metrics.Metric = 'categorical_accuracy',
-              learning_rate: float = 0.001, *args, **kwargs):
-    if type(optimizer) == str:
-      super().compile(optimizer = optimizer,
+              optimizer: keras.optimizers.Optimizer = keras.optimizers.Adam,
+              loss: keras.losses.Loss = 'binary_crossentropy',
+              metrics: keras.metrics.Metric = 'categorical_accuracy',
+              *args, **kwargs):
+    super().compile(optimizer = optimizer,
                 loss = loss,
                 metrics = metrics, *args, **kwargs)
-    else:
-      super().compile(optimizer = optimizer(learning_rate=learning_rate),
-                      loss = loss,
-                      metrics = metrics, *args, **kwargs)
     return self.model
 
   def predict(self, x,

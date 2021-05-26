@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from keras.preprocessing.image import ImageDataGenerator, img_to_array
 
 
 #-----------------------------------------------------------
@@ -97,3 +97,20 @@ def makeGen(X, y, folder: str = 'train_images/',
                                                 batch_size = batchSize,
                                                 shuffle = shuffle)
     return generator
+
+def imageToTensor(image : np.ndarray):
+    """
+    Chargement d'une image sous forme de tenseur
+
+     Parameter
+     ----------
+     image : image a charger
+
+     Return
+     ----------
+     tf.Tensor : tenseur
+    """
+    im_tensor = img_to_array(image)
+    im_tensor = np.expand_dims(im_tensor, axis=0)
+    im_tensor /= 255.
+    return im_tensor
