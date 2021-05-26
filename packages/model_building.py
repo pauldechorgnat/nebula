@@ -120,9 +120,9 @@ class NebulaWrapper(Model):
           autoInit : pour charger les poids pré-entraînés
           initWeights : chemin vers le fichier de poids pré-entraînés
       compile(optimizer, loss, metrics)
-          optimizer : keras.optimizers.Optimizer ou str (par ex. 'adam')
-          loss : keras.losses.Loss ou str (par ex. 'binary_crossentropy')
-          metrics : keras.metric.Metric ou str (par ex. 'categorical_accuracy')
+          optimizer : tf.keras.optimizers.Optimizer ou str (par ex. 'adam')
+          loss : tf.keras.losses.Loss ou str (par ex. 'binary_crossentropy')
+          metrics : tf.keras.metric.Metric ou str (par ex. 'categorical_accuracy')
       predict(x, filter, threshold)
           x : générateur ou np.ndarray renvoyant X, y :
               X : [batchSize, X-dim, Y-dim, 1]
@@ -157,9 +157,9 @@ class NebulaWrapper(Model):
     return self.model(inputs)
 
   def compile(self,
-              optimizer: keras.optimizers.Optimizer = keras.optimizers.Adam,
-              loss: keras.losses.Loss = 'binary_crossentropy',
-              metrics: keras.metrics.Metric = 'categorical_accuracy',
+              optimizer: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam,
+              loss: tf.keras.losses.Loss = 'binary_crossentropy',
+              metrics: tf.keras.metrics.Metric = 'categorical_accuracy',
               *args, **kwargs):
     super().compile(optimizer = optimizer,
                 loss = loss,

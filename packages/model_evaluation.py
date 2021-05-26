@@ -22,7 +22,7 @@ def iou_coef(y_true, y_pred, smooth=1):
         ----------
         y_true : cibles
         y_pred : prédictions du modèle
-        smooth : parametre de robustesse aux outliners
+        smooth : parametre de robustesse aux outliers
 
         Retour
         ----------
@@ -50,7 +50,7 @@ def tf_num(in1 : np.ndarray, in2 : np.ndarray):
     # Retour de la fonction
     return K.log(1. + a * b) / K.log(2.)
 
-def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4), smooth : np.float32 = K.epsilon()):
+def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4), smooth : tf.float32 = K.epsilon()):
     '''
         Calcul du coefficient de Dice de deux ensembles
         Paramètre
@@ -60,6 +60,7 @@ def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(
             [1., 1., 1., 1.] par défaut
             La pondération n'est utilisée que pour les tenseurs de rangs 3 et 4.
             La pndération implique : in1.shape = (...,4) et in2.shape = (...,4)
+        smooth : parametre de robustesse aux outliers
         Retour
         ----------
         m : coefficient de Dice (https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice)
