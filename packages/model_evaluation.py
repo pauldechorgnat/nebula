@@ -31,7 +31,7 @@ def tf_num(in1 : np.ndarray, in2 : np.ndarray):
     # Retour de la fonction
     return K.log(1. + a * b) / K.log(2.)
 
-def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4), smooth : float32 = K.epsilon()):
+def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4), smooth : np.float32 = K.epsilon()):
     '''
         Calcul du coefficient de Dice de deux ensembles
         Paramètre
