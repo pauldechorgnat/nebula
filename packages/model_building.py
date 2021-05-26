@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow.keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
 from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras import callbacks
@@ -155,9 +156,9 @@ class NebulaClassifModel(Model):
     return self.model(inputs)
 
   def compile(self,
-              optimizer: tensorflow.keras.optimizers.Optimizer = tensorflow.keras.optimizers.Adam,
-              loss: tensorflow.keras.losses.Loss = 'binary_crossentropy',
-              metrics: tensorflow.keras.metrics.Metric = 'categorical_accuracy',
+              optimizer: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam,
+              loss: tf.keras.losses.Loss = 'binary_crossentropy',
+              metrics: tf.keras.metrics.Metric = 'categorical_accuracy',
               learning_rate: float = 0.001, *args, **kwargs):
     if type(optimizer) == str:
       super().compile(optimizer = optimizer,
