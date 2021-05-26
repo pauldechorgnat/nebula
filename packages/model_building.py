@@ -157,7 +157,7 @@ class NebulaWrapper(Model):
     return self.model(inputs)
 
   def compile(self,
-              optimizer: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam,
+              optimizer: tf.keras.optimizers.Optimizer = tf.keras.optimizers.Adam(),
               loss: tf.keras.losses.Loss = 'binary_crossentropy',
               metrics: tf.keras.metrics.Metric = 'categorical_accuracy',
               *args, **kwargs):
