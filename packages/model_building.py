@@ -1,8 +1,7 @@
-import keras
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers.convolutional import Conv2D, MaxPooling2D
-from keras.models import Sequential, Model
-from keras import callbacks
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.layers.convolutional import Conv2D, MaxPooling2D
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras import callbacks
 import numpy as np
 
 #-----------------------------------------------------------
@@ -28,7 +27,7 @@ def builClassifModel(tx: int = 175, ty: int = 262):
 
         Retour
         ----------
-        keras.Model
+        tensorflow.keras.Model
     '''
     # Model sequentiel
     model = Sequential()
@@ -121,9 +120,9 @@ class NebulaClassifModel(Model):
           autoInit : pour charger les poids pré-entraînés
           initWeights : chemin vers le fichier de poids pré-entraînés
       compile(optimizer, loss, metrics)
-          optimizer : keras.optimizers.Optimizer ou str (par ex. 'adam')
-          loss : keras.losses.Loss ou str (par ex. 'binary_crossentropy')
-          metrics : keras.metric.Metric ou str (par ex. 'categorical_accuracy')
+          optimizer : tensorflow.keras.optimizers.Optimizer ou str (par ex. 'adam')
+          loss : tensorflow.keras.losses.Loss ou str (par ex. 'binary_crossentropy')
+          metrics : tensorflow.keras.metric.Metric ou str (par ex. 'categorical_accuracy')
           learning_rate : 0.001
       predict(x, filter, threshold)
           x : générateur ou np.ndarray renvoyant X, y :
@@ -157,9 +156,9 @@ class NebulaClassifModel(Model):
     return self.model(inputs)
 
   def compile(self,
-              optimizer: keras.optimizers.Optimizer = keras.optimizers.Adam,
-              loss: keras.losses.Loss = 'binary_crossentropy',
-              metrics: keras.metrics.Metric = 'categorical_accuracy',
+              optimizer: tensorflow.keras.optimizers.Optimizer = tensorflow.keras.optimizers.Adam,
+              loss: tensorflow.keras.losses.Loss = 'binary_crossentropy',
+              metrics: tensorflow.keras.metrics.Metric = 'categorical_accuracy',
               learning_rate: float = 0.001, *args, **kwargs):
     if type(optimizer) == str:
       super().compile(optimizer = optimizer,
