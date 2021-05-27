@@ -51,6 +51,72 @@ def builClassifModel(tx: int = 175, ty: int = 262):
         model.add(layer)
     return model
 
+def buildSegmentationModel1(sm,
+                            nb_classes: int = 4,
+                            target_size: tuple = (320, 480),
+                            nb_canaux: int = 3):
+    '''
+        Fonction de création de l'architecture du modèle 1 de segmentation
+
+        Attention : l'instance "sm" de l'import segmentation_models necessite
+        d'avoir execute au prealable dans le programme appelant les instructions
+        suivantes :
+        > %env SM_FRAMEWORK=tf.keras
+        > pip install segmentation_models
+        > import segmentation_models as sm
+
+        Paramètre
+        ----------
+        sm : instance de l'import segmentation_models
+        nb_calsses : nombre de classes cibles
+        target_size : taille des images d'entree
+        nb_canaux : nb de canaux des images d'entree
+
+        Retour
+        ----------
+        tensorflow.keras.Model
+    '''
+    BACKBONE = 'resnet18'
+    model = sm.Unet(BACKBONE, 
+                classes=nb_classes,
+                encoder_weights='imagenet',
+                input_shape=(target_size[0], target_size[1], nb_canaux),
+                activation='sigmoid')
+    return model
+
+def buildSegmentationModel2(sm,
+                            nb_classes: int = 4,
+                            target_size: tuple = (320, 480),
+                            nb_canaux: int = 3):
+    '''
+        Fonction de création de l'architecture du modèle 2 de segmentation
+
+        Attention : l'instance "sm" de l'import segmentation_models necessite
+        d'avoir execute au prealable dans le programme appelant les instructions
+        suivantes :
+        > %env SM_FRAMEWORK=tf.keras
+        > pip install segmentation_models
+        > import segmentation_models as sm
+
+        Paramètre
+        ----------
+        sm : instance de l'import segmentation_models
+        nb_calsses : nombre de classes cibles
+        target_size : taille des images d'entree
+        nb_canaux : nb de canaux des images d'entree
+
+        Retour
+        ----------
+        tensorflow.keras.Model
+    '''
+    BACKBONE = 'efficientnetb1'
+    model = sm.Linknet(BACKBONE, 
+                classes=nb_classes,
+                encoder_weights='imagenet',
+                input_shape=(target_size[0], target_size[1], nb_canaux),
+                activation='sigmoid')
+    return model
+
 def cb_earlyStopping(patience=6, monitor='val_loss'):
     '''
         Création d'un callback EarlyStopping pré-paramétré
