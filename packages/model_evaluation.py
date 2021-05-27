@@ -114,7 +114,7 @@ class diceMetric(tf.keras.metrics.Metric):
         self.diceM = dice(y_true, y_pred, self.classWeights)
     def result(self):
         return self.diceM
-    def reset_states(self):
+    def reset_state(self):
         self.diceM=0.
 
 class diceLoss(tf.keras.losses.Loss):
