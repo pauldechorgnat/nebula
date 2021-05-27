@@ -22,7 +22,7 @@ def iou_coef(y_true, y_pred, smooth=1):
         ----------
         y_true : cibles
         y_pred : prédictions du modèle
-        smooth : parametre de robustesse aux outliners
+        smooth : parametre de robustesse aux outliers
 
         Retour
         ----------
@@ -50,7 +50,7 @@ def tf_num(in1 : np.ndarray, in2 : np.ndarray):
     # Retour de la fonction
     return K.log(1. + a * b) / K.log(2.)
 
-def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4)):
+def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4), smooth : tf.float32 = K.epsilon()):
     '''
         Calcul du coefficient de Dice de deux ensembles
         Paramètre
@@ -60,6 +60,7 @@ def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(
             [1., 1., 1., 1.] par défaut
             La pondération n'est utilisée que pour les tenseurs de rangs 3 et 4.
             La pndération implique : in1.shape = (...,4) et in2.shape = (...,4)
+        smooth : parametre de robustesse aux outliers
         Retour
         ----------
         m : coefficient de Dice (https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice)
@@ -72,19 +73,19 @@ def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(
     if K.ndim(a) == 4:
         num = K.mean(K.sum(tf_num(a,b),(2,1)),0)
         denom = K.mean(K.sum(a,(2,1)) + K.sum(b,(2,1)),0)
-        m= (2.*K.sum(num * w) + K.epsilon()) / \
-        (K.sum(denom * w) + K.epsilon())
+        m= (2.*K.sum(num * w) + smooth) / \
+        (K.sum(denom * w) + smooth)
     elif K.ndim(a) == 3:
         num = K.sum(tf_num(a,b),(1,0))
         denom = K.sum(a,(1,0)) + K.sum(b,(1,0))
-        m= (2.*K.sum(num * w) + K.epsilon()) / \
-        (K.sum(denom * w) + K.epsilon())
+        m= (2.*K.sum(num * w) + smooth) / \
+        (K.sum(denom * w) + smooth)
     elif K.ndim(a) == 2:
-        m= (2.*K.sum(tf_num(a,b),(1,0)) + K.epsilon()) / \
-        (K.sum(a,(1,0)) + K.sum(b,(1,0)) + K.epsilon())
+        m= (2.*K.sum(tf_num(a,b),(1,0)) + smooth) / \
+        (K.sum(a,(1,0)) + K.sum(b,(1,0)) + smooth)
     else :
-        m= (2.*K.sum(tf_num(a,b),(0)) + K.epsilon()) / \
-        (K.sum(a,(0)) + K.sum(b,(0)) + K.epsilon())
+        m= (2.*K.sum(tf_num(a,b),(0)) + smooth) / \
+        (K.sum(a,(0)) + K.sum(b,(0)) + smooth)
     return m
 
 class diceMetric(tf.keras.metrics.Metric):
