@@ -245,7 +245,8 @@ def imshowSuperimposed(nomImage: str, rle: str = '', classe: str = 'Fish', repIm
 def trace_boundingBox(image : np.ndarray,
                       mask : np.ndarray,
                       color : tuple = (0,0,255),
-                      width : int = 10):
+                      width : int = 10,
+                      smin  : int = 0):
     """
     Draw a bounding box on image
 
@@ -255,6 +256,7 @@ def trace_boundingBox(image : np.ndarray,
      mask  : mask to process
      color : color we want to use to draw the box edges
      width : box edges's width
+     smin  : minimum surface to trace
 
      Return
      ----------
@@ -266,7 +268,9 @@ def trace_boundingBox(image : np.ndarray,
     for prop in props:
         coin1 = (prop.bbox[3], prop.bbox[2])
         coin2 = (prop.bbox[1], prop.bbox[0])
-        cv2.rectangle(image, coin2, coin1, color, width)
+        surface = (prop.bbox[1] - prop.bbox[3]) * (prop.bbox[0]-prop.bbox[2])
+        if surface >= smin:
+            cv2.rectangle(image, coin2, coin1, color, width)
     return None
 
 
