@@ -17,6 +17,8 @@ import SessionState
 import base64
 import time
 
+sm.set_framework('tf.keras')
+
 #+Deployment
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))  
 parentdir = os.path.dirname(currentdir)
