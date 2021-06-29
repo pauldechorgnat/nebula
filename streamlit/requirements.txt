@@ -1,0 +1,4 @@
+bokeh==2.2.2
+gdown
+export PIP_SM_FRAMEWORK=tf.keras
+segmentation_models
