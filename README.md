@@ -18,6 +18,10 @@ It is based on the following Kaggle competition:
 <p align="center"><a href="https://colab.research.google.com/github/DataScientest/nebula/blob/yann/nebula_phase2_multiClassification.ipynb" target="new" rel="noopener noreferrer">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
 </a></p>
+<li>Explore phase 3 notebook in Google Colab (<i>nebula_phase3_segmentation.ipynb</i>)</li>
+<p align="center"><a href="https://colab.research.google.com/github/DataScientest/nebula/blob/yann/nebula_phase3_segmentation.ipynb" target="new" rel="noopener noreferrer">
+  <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+</a></p>
 </ul>
 <p style="text-indent:20px;">More to come...</p>
 <p></p>
