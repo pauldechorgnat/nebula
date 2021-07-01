@@ -1,4 +1,3 @@
-streamlit==0.81.0
 bokeh==2.2.2
 gdown
 segmentation_models
