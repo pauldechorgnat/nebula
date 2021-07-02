@@ -8,6 +8,7 @@ import sys                     #+Deployment
 import inspect                 #+Deployment
 import cv2
 import requests
+import ast
 from datetime import datetime, timedelta, date
 import numpy as np
 import moviepy.video.io.ImageSequenceClip
@@ -99,7 +100,8 @@ def load_model():
 # Récupération d'une photo satellite depuis l'appli worldview de la NASA
 #===============================================================================
 def get_earthdataView(coord, image_date, image_heure='08:00:00', target_size=(320, 480)):
-
+    if isinstance(coord, str):
+        coord = ast.literal_eval(coord)
     coords = [str(coord[0]-6), str(coord[1]-9), str(coord[0]+6), str(coord[1]+9)]
 #    coord = ['13.539855936494165','-46.89858946849988','25.854208633627493','-28.44241497728509']
 #    if area == 2 :
