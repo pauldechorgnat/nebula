@@ -18,7 +18,7 @@ st.set_page_config(**PAGE_CONFIG)
 MENU = {
     "Home" : home,
     "Nebula Data Exploration" : exploration,
-    "World Scanner" : scanner,
+    "Nebula World Scanner" : scanner,
     "Gallery" : gallery,    
     "Help" : help,
     "Credits" : credits

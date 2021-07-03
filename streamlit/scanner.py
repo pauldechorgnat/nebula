@@ -103,11 +103,6 @@ def get_earthdataView(coord, image_date, image_heure='08:00:00', target_size=(32
     if isinstance(coord, str):
         coord = ast.literal_eval(coord)
     coords = [str(coord[0]-6), str(coord[1]-9), str(coord[0]+6), str(coord[1]+9)]
-#    coord = ['13.539855936494165','-46.89858946849988','25.854208633627493','-28.44241497728509']
-#    if area == 2 :
-#        coord = ['-20.284802991476177','-112.01441015211233','-7.936694900788218','-93.58044878815673']
-#    elif area == 3:
-#        coord = ['-14.875157431909798','-17.051571705453','-2.5270493412218435','1.3823896585025892'] 
 
     url = "https://wvs.earthdata.nasa.gov/api/v1/snapshot?REQUEST=GetSnapshot&TIME="+image_date+"T"+image_heure+"Z&BBOX="+coords[0]+","+coords[1]+","+coords[2]+","+coords[3]+"&CRS=EPSG:4326&LAYERS=MODIS_Aqua_CorrectedReflectance_TrueColor,Coastlines_15m&WRAP=day,x&FORMAT=image/jpeg&WIDTH=480&HEIGHT=320&ts=1619077410459"
     im = Image.open(requests.get(url, stream=True).raw)
@@ -212,7 +207,6 @@ def app():
     #Initialisation des variables de session
     # imgSession = dernier image satellite recue
     # vidSession = frames de la derniere video generee
-    # modelS     = instance du modele de segmentation
 
     session_state = SessionState.get(imgSession=None, vidSession=None)
 
@@ -225,26 +219,36 @@ def app():
     legend = load_legend()
 
     with st.form('headerForm'):
-        headerCol1, headerCol2, headerCol3, headerCol4 = st.beta_columns([1, 0.7, 0.7, 0.5])
+        headerCol1, headerCol2, headerColInter, headerCol3, headerCol4 = st.beta_columns([0.6, 0.7, 0.1, 0.6, 0.5])
 
         with headerCol1:
             st.markdown('''
-                 <SPAN style="font-size:11px; color:white">
-                 1. Click on the map or use sliders to select area,<BR>
-                 2. Set the day of capture, choose Photo/Video,<BR>
-                 3. Push "SCAN", then "Identify Cloud" buttons !
+                 <SPAN style="font-size:13px; color:white">
+                 1. Click on the map or use sliders,<BR>
+                 <BR>
+                  <BR>
                  </SPAN>
           ''', unsafe_allow_html=True)
 
         with headerCol2:
-            image_date = st.date_input("Capture day : ", date(2019, 2, 20),
+            image_date = st.date_input("2. Set the day of capture,", date(2019, 2, 20),
                                       min_value = date(2001, 1, 1),
                                       max_value = (datetime.today() - timedelta(days=20)).date())
 
         with headerCol3:
+            st.markdown('''
+                 <SPAN style="font-size:13px; color:white">
+                 3. Choose Photo/Video,<BR>
+                 </SPAN>
+                ''', unsafe_allow_html=True)
             sel_nature = st.radio("", ('Photo', 'Video (10 days)'))
 
         with headerCol4:
+            st.markdown('''
+                 <SPAN style="font-size:13px; color:white">
+                 4. Push Scan,
+                 </SPAN>
+                ''', unsafe_allow_html=True)
             goscan = st.form_submit_button("Scan") 
 
         mainCol1, mainCol2 = st.beta_columns(2)
@@ -258,19 +262,25 @@ def app():
         with mainCol2:
             scanLocation = st.empty()
 
-    processCol1, processCol2, processCol3 = st.beta_columns([1, 2, 2])
-
-    with processCol1:
-        st.image(legend)
-
-    with processCol2:
-         clsLocation = st.empty()
-
-    with processCol3:
-        with st.form('segForm'):
-            gosegmentation = st.form_submit_button('Identify Cloud >>')      
-            st.write("Display options :")
+    with st.form('segForm'):
+        processCol1, processCol2, processCol3 = st.beta_columns([1, 2, 2])
+        with processCol1:
+            st.image(legend)
+        with processCol2:
+            clsLocation = st.empty()
+        with processCol3:
+            st.markdown('''
+              <SPAN style="font-size:13px; color:white">
+              5. Choose display options,
+              </SPAN>
+              ''', unsafe_allow_html=True)
             seg_option = st.radio("", ('Clouds Masks', 'Boxes', 'Coloring'))
+            st.markdown('''
+              <SPAN style="font-size:13px; color:white">
+              6. Then, identify clouds !
+              </SPAN>
+              ''', unsafe_allow_html=True)
+            gosegmentation = st.form_submit_button('Identify Cloud >>')  
 
     video = True
     if sel_nature == 'Photo':
