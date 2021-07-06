@@ -25,6 +25,6 @@ MENU = {
 }
 
 st.sidebar.title('Menu')
-selection_page = st.sidebar.selectbox("",list(MENU.keys()))
+selection_page = st.sidebar.radio("",list(MENU.keys()))
 page = MENU[selection_page]
 page.app()
