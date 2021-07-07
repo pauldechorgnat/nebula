@@ -8,6 +8,8 @@ import exploration
 import gallery
 import credits
 import home
+import about
+import bilan
 
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 
@@ -17,8 +19,10 @@ st.set_page_config(**PAGE_CONFIG)
 
 MENU = {
     "Home" : home,
+    "About Nebula" : about,
     "Nebula Data Exploration" : exploration,
     "Nebula World Scanner" : scanner,
+    "Our thought" : bilan,
     "Gallery" : gallery,    
     "Help" : help,
     "Credits" : credits
