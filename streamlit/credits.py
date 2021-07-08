@@ -53,7 +53,8 @@ def app():
 
     c1, c2 = st.beta_columns([0.5, 2])
     c1.markdown(f'''<u>Project mentor</u> :''', unsafe_allow_html=True)  
-    c2.markdown(f'''Paul DECHORGNAT (DataScientest)''', unsafe_allow_html=True)    
+    logo_linkedin = get_img_with_href(os.path.join(currentdir, 'ressources/linkedin.png'), 'https://www.linkedin.com/in/paul-dechorgnat/', 20)
+    c2.markdown(f'''<a href="https://www.linkedin.com/in/paul-dechorgnat/" style="text-decoration: none;color:white">Paul DECHORGNAT (DataScientest)</a> {logo_linkedin}''', unsafe_allow_html=True)    
 
     c1, c2 = st.beta_columns([0.5, 2])
     c1.markdown(f'''<u>Github</u> :''', unsafe_allow_html=True)  
