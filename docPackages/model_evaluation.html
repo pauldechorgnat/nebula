@@ -34,7 +34,7 @@ import numpy as np
 #-----------------------------------------------------------
 # PROJET NEBULA
 # Datascientest DS continu oct. 2020
-# Librairie : model_evaluation
+# Librairie : MODEL_EVALUATION
 #             Evaluation de modèle de segmentation d&#39;images
 # Auteurs : Cathy Baynaud Samson
 #           José Castro
@@ -42,12 +42,32 @@ import numpy as np
 #           Ludovic Changeon
 #-----------------------------------------------------------
 
+def iou_coef(y_true, y_pred, smooth=1):
+    &#39;&#39;&#39;
+        Metrique Intersection Over Union  
+  
+        Paramètre  
+        ----------  
+        y_true : cibles  
+        y_pred : prédictions du modèle  
+        smooth : parametre de robustesse aux outliers  
+  
+        Retour  
+        ----------  
+        Coefficient IOU  
+    &#39;&#39;&#39;
+    intersection = K.sum(K.abs(y_true * y_pred), axis=[1,2,3])
+    union = K.sum(y_true,[1,2,3])+K.sum(y_pred,[1,2,3])-intersection
+    iou = K.mean((intersection + smooth) / (union + smooth), axis=0)
+    return iou
+
 def tf_num(in1 : np.ndarray, in2 : np.ndarray):
     &#39;&#39;&#39;
         Fonction de support pour le calcul du coefficient de Dice  
+  
         Paramètre  
         ----------  
-        in1, in2 : np.ndarray ou tf.Tensor, les deux ensembles à comparer  
+        in1, in2 : np.ndarray ou tf.Tensor, les deux ensembles à comparer    
   
         Retour  
         ----------  
@@ -59,7 +79,7 @@ def tf_num(in1 : np.ndarray, in2 : np.ndarray):
     # Retour de la fonction
     return K.log(1. + a * b) / K.log(2.)
 
-def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4)):
+def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4), smooth : tf.float32 = K.epsilon()):
     &#39;&#39;&#39;
         Calcul du coefficient de Dice de deux ensembles  
         Paramètre  
@@ -69,6 +89,8 @@ def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(
             [1., 1., 1., 1.] par défaut  
             La pondération n&#39;est utilisée que pour les tenseurs de rangs 3 et 4.  
             La pndération implique : in1.shape = (...,4) et in2.shape = (...,4)  
+        smooth : parametre de robustesse aux outliers  
+  
         Retour  
         ----------  
         m : coefficient de Dice (https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice)  
@@ -81,19 +103,19 @@ def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(
     if K.ndim(a) == 4:
         num = K.mean(K.sum(tf_num(a,b),(2,1)),0)
         denom = K.mean(K.sum(a,(2,1)) + K.sum(b,(2,1)),0)
-        m= (2.*K.sum(num * w) + K.epsilon()) / \
-        (K.sum(denom * w) + K.epsilon())
+        m= (2.*K.sum(num * w) + smooth) / \
+        (K.sum(denom * w) + smooth)
     elif K.ndim(a) == 3:
         num = K.sum(tf_num(a,b),(1,0))
         denom = K.sum(a,(1,0)) + K.sum(b,(1,0))
-        m= (2.*K.sum(num * w) + K.epsilon()) / \
-        (K.sum(denom * w) + K.epsilon())
+        m= (2.*K.sum(num * w) + smooth) / \
+        (K.sum(denom * w) + smooth)
     elif K.ndim(a) == 2:
-        m= (2.*K.sum(tf_num(a,b),(1,0)) + K.epsilon()) / \
-        (K.sum(a,(1,0)) + K.sum(b,(1,0)) + K.epsilon())
+        m= (2.*K.sum(tf_num(a,b),(1,0)) + smooth) / \
+        (K.sum(a,(1,0)) + K.sum(b,(1,0)) + smooth)
     else :
-        m= (2.*K.sum(tf_num(a,b),(0)) + K.epsilon()) / \
-        (K.sum(a,(0)) + K.sum(b,(0)) + K.epsilon())
+        m= (2.*K.sum(tf_num(a,b),(0)) + smooth) / \
+        (K.sum(a,(0)) + K.sum(b,(0)) + smooth)
     return m
 
 class diceMetric(tf.keras.metrics.Metric):
@@ -122,7 +144,7 @@ class diceMetric(tf.keras.metrics.Metric):
         self.diceM = dice(y_true, y_pred, self.classWeights)
     def result(self):
         return self.diceM
-    def reset_states(self):
+    def reset_state(self):
         self.diceM=0.
 
 class diceLoss(tf.keras.losses.Loss):
@@ -139,7 +161,7 @@ class diceLoss(tf.keras.losses.Loss):
         classWeights : pondération des 4 classes de segmentation  
   
         Retour  
-        ----------
+        ----------  
         loss = 1. - m (m : Coefficient de Dice (https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice))  
     &#39;&#39;&#39;
     def __init__(self, name: str =&#39;diceL&#39;, classWeights : np.ndarray = np.ones(4), **kwargs):
@@ -158,7 +180,7 @@ class diceLoss(tf.keras.losses.Loss):
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="packages.model_evaluation.dice"><code class="name flex">
-<span>def <span class="ident">dice</span></span>(<span>in1: numpy.ndarray, in2: numpy.ndarray, classWeights: numpy.ndarray = array([1., 1., 1., 1.]))</span>
+<span>def <span class="ident">dice</span></span>(<span>in1: numpy.ndarray, in2: numpy.ndarray, classWeights: numpy.ndarray = array([1., 1., 1., 1.]), smooth: tf.float32 = 1e-07)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calcul du coefficient de Dice de deux ensembles<br>
@@ -170,15 +192,15 @@ classWeights : np.ndarray pondération optionnelle des 4 classes d'apprentissage
 [1., 1., 1., 1.] par défaut<br>
 La pondération n'est utilisée que pour les tenseurs de rangs 3 et 4.<br>
 La pndération implique : in1.shape = (&hellip;,4) et in2.shape = (&hellip;,4)<br>
-Retour
+smooth : parametre de robustesse aux outliers
 </p>
-<hr>
+<h2 id="retour">Retour</h2>
 <p>m : coefficient de Dice (<a href="https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice">https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice</a>)</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4)):
+<pre><code class="python">def dice(in1 : np.ndarray, in2 : np.ndarray, classWeights : np.ndarray= np.ones(4), smooth : tf.float32 = K.epsilon()):
     &#39;&#39;&#39;
         Calcul du coefficient de Dice de deux ensembles  
         Paramètre  
@@ -188,6 +210,8 @@ Retour
             [1., 1., 1., 1.] par défaut  
             La pondération n&#39;est utilisée que pour les tenseurs de rangs 3 et 4.  
             La pndération implique : in1.shape = (...,4) et in2.shape = (...,4)  
+        smooth : parametre de robustesse aux outliers  
+  
         Retour  
         ----------  
         m : coefficient de Dice (https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice)  
@@ -200,30 +224,66 @@ Retour
     if K.ndim(a) == 4:
         num = K.mean(K.sum(tf_num(a,b),(2,1)),0)
         denom = K.mean(K.sum(a,(2,1)) + K.sum(b,(2,1)),0)
-        m= (2.*K.sum(num * w) + K.epsilon()) / \
-        (K.sum(denom * w) + K.epsilon())
+        m= (2.*K.sum(num * w) + smooth) / \
+        (K.sum(denom * w) + smooth)
     elif K.ndim(a) == 3:
         num = K.sum(tf_num(a,b),(1,0))
         denom = K.sum(a,(1,0)) + K.sum(b,(1,0))
-        m= (2.*K.sum(num * w) + K.epsilon()) / \
-        (K.sum(denom * w) + K.epsilon())
+        m= (2.*K.sum(num * w) + smooth) / \
+        (K.sum(denom * w) + smooth)
     elif K.ndim(a) == 2:
-        m= (2.*K.sum(tf_num(a,b),(1,0)) + K.epsilon()) / \
-        (K.sum(a,(1,0)) + K.sum(b,(1,0)) + K.epsilon())
+        m= (2.*K.sum(tf_num(a,b),(1,0)) + smooth) / \
+        (K.sum(a,(1,0)) + K.sum(b,(1,0)) + smooth)
     else :
-        m= (2.*K.sum(tf_num(a,b),(0)) + K.epsilon()) / \
-        (K.sum(a,(0)) + K.sum(b,(0)) + K.epsilon())
+        m= (2.*K.sum(tf_num(a,b),(0)) + smooth) / \
+        (K.sum(a,(0)) + K.sum(b,(0)) + smooth)
     return m</code></pre>
+</details>
+</dd>
+<dt id="packages.model_evaluation.iou_coef"><code class="name flex">
+<span>def <span class="ident">iou_coef</span></span>(<span>y_true, y_pred, smooth=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Metrique Intersection Over Union
+</p>
+<h2 id="parametre">Paramètre</h2>
+<p>y_true : cibles<br>
+y_pred : prédictions du modèle<br>
+smooth : parametre de robustesse aux outliers
+</p>
+<h2 id="retour">Retour</h2>
+<p>Coefficient IOU</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def iou_coef(y_true, y_pred, smooth=1):
+    &#39;&#39;&#39;
+        Metrique Intersection Over Union  
+  
+        Paramètre  
+        ----------  
+        y_true : cibles  
+        y_pred : prédictions du modèle  
+        smooth : parametre de robustesse aux outliers  
+  
+        Retour  
+        ----------  
+        Coefficient IOU  
+    &#39;&#39;&#39;
+    intersection = K.sum(K.abs(y_true * y_pred), axis=[1,2,3])
+    union = K.sum(y_true,[1,2,3])+K.sum(y_pred,[1,2,3])-intersection
+    iou = K.mean((intersection + smooth) / (union + smooth), axis=0)
+    return iou</code></pre>
 </details>
 </dd>
 <dt id="packages.model_evaluation.tf_num"><code class="name flex">
 <span>def <span class="ident">tf_num</span></span>(<span>in1: numpy.ndarray, in2: numpy.ndarray)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Fonction de support pour le calcul du coefficient de Dice<br>
-Paramètre
+<div class="desc"><p>Fonction de support pour le calcul du coefficient de Dice
 </p>
-<hr>
+<h2 id="parametre">Paramètre</h2>
 <p>in1, in2 : np.ndarray ou tf.Tensor, les deux ensembles à comparer
 </p>
 <h2 id="retour">Retour</h2>
@@ -235,9 +295,10 @@ Paramètre
 <pre><code class="python">def tf_num(in1 : np.ndarray, in2 : np.ndarray):
     &#39;&#39;&#39;
         Fonction de support pour le calcul du coefficient de Dice  
+  
         Paramètre  
         ----------  
-        in1, in2 : np.ndarray ou tf.Tensor, les deux ensembles à comparer  
+        in1, in2 : np.ndarray ou tf.Tensor, les deux ensembles à comparer    
   
         Retour  
         ----------  
@@ -285,8 +346,8 @@ option will be determined by the usage context. For almost all cases
 this defaults to <code>SUM_OVER_BATCH_SIZE</code>. When used with
 <code>tf.distribute.Strategy</code>, outside of built-in training loops such as
 <code>tf.keras</code> <code>compile</code> and <code>fit</code>, using <code>AUTO</code> or <code>SUM_OVER_BATCH_SIZE</code>
-will raise an error. Please see this custom training <a href="https://www.tensorflow.org/tutorials/distribute/custom_training">tutorial</a>
-for more details.</dd>
+will raise an error. Please see this custom training <a href="https://www.tensorflow.org/tutorials/distribute/custom_training">tutorial</a> for
+more details.</dd>
 <dt><strong><code>name</code></strong></dt>
 <dd>Optional name for the op.</dd>
 </dl></div>
@@ -308,7 +369,7 @@ for more details.</dd>
         classWeights : pondération des 4 classes de segmentation  
   
         Retour  
-        ----------
+        ----------  
         loss = 1. - m (m : Coefficient de Dice (https://fr.wikipedia.org/wiki/Indice_de_S%C3%B8rensen-Dice))  
     &#39;&#39;&#39;
     def __init__(self, name: str =&#39;diceL&#39;, classWeights : np.ndarray = np.ones(4), **kwargs):
@@ -401,7 +462,7 @@ classWeights : pondération des 4 classes de segmentation
         self.diceM = dice(y_true, y_pred, self.classWeights)
     def result(self):
         return self.diceM
-    def reset_states(self):
+    def reset_state(self):
         self.diceM=0.</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -415,8 +476,8 @@ classWeights : pondération des 4 classes de segmentation
 </ul>
 <h3>Methods</h3>
 <dl>
-<dt id="packages.model_evaluation.diceMetric.reset_states"><code class="name flex">
-<span>def <span class="ident">reset_states</span></span>(<span>self)</span>
+<dt id="packages.model_evaluation.diceMetric.reset_state"><code class="name flex">
+<span>def <span class="ident">reset_state</span></span>(<span>self)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Resets all of the metric state variables.</p>
@@ -426,7 +487,7 @@ when a metric is evaluated during training.</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def reset_states(self):
+<pre><code class="python">def reset_state(self):
     self.diceM=0.</code></pre>
 </details>
 </dd>
@@ -492,6 +553,7 @@ eager execution.</p>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
 <li><code><a title="packages.model_evaluation.dice" href="#packages.model_evaluation.dice">dice</a></code></li>
+<li><code><a title="packages.model_evaluation.iou_coef" href="#packages.model_evaluation.iou_coef">iou_coef</a></code></li>
 <li><code><a title="packages.model_evaluation.tf_num" href="#packages.model_evaluation.tf_num">tf_num</a></code></li>
 </ul>
 </li>
@@ -506,7 +568,7 @@ eager execution.</p>
 <li>
 <h4><code><a title="packages.model_evaluation.diceMetric" href="#packages.model_evaluation.diceMetric">diceMetric</a></code></h4>
 <ul class="">
-<li><code><a title="packages.model_evaluation.diceMetric.reset_states" href="#packages.model_evaluation.diceMetric.reset_states">reset_states</a></code></li>
+<li><code><a title="packages.model_evaluation.diceMetric.reset_state" href="#packages.model_evaluation.diceMetric.reset_state">reset_state</a></code></li>
 <li><code><a title="packages.model_evaluation.diceMetric.result" href="#packages.model_evaluation.diceMetric.result">result</a></code></li>
 <li><code><a title="packages.model_evaluation.diceMetric.update_state" href="#packages.model_evaluation.diceMetric.update_state">update_state</a></code></li>
 </ul>

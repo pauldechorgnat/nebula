@@ -48,31 +48,31 @@ from skimage.measure import label, regionprops
 
 def np_transposition(image: np.ndarray, input_shape: tuple) -&gt; np.ndarray:
     &#34;&#34;&#34;
-    Transposition d&#39;un np array afin d&#39;inverser les dimensions (hauteur, largeur)   
+    Transposition d&#39;un np array afin d&#39;inverser les dimensions (hauteur, largeur)  
     vers (largeur, hauteur).  
     Si les dimensions initiales sont différentes de (height,width), un redimensionnement est effectué.  
   
      Paramètre  
      ----------  
-     image : np array a transposer   
+     image : np array a transposer  
      input_shape : dimensions de l&#39;image cible  
   
      Retour  
      ----------  
-     np.array : image transposee  
+     np.array : image transposée  
     &#34;&#34;&#34;
 
     height, width = input_shape
     return cv2.resize(image, (width, height))
 
-    
+
 def rleToMask(rle: str, shape: tuple  =(1400, 2100)) -&gt; np.ndarray:
     &#34;&#34;&#34;
-    Conversion d&#39;un codage RLE en masque  
+     Conversion d&#39;un codage RLE en masque  
   
      Paramètre  
      ----------  
-     rle   : encodage RLE a convertir   
+     rle   : encodage RLE a convertir  
      shape : format du masque  
   
      Retour  
@@ -81,9 +81,9 @@ def rleToMask(rle: str, shape: tuple  =(1400, 2100)) -&gt; np.ndarray:
     &#34;&#34;&#34;
 
     width, height = shape[:2]
-    
+
     mask= np.zeros( width*height ).astype(np.uint8)
-    
+
     array = np.asarray([int(x) for x in rle.split()])
     starts = array[0::2]
     lengths = array[1::2]
@@ -92,15 +92,15 @@ def rleToMask(rle: str, shape: tuple  =(1400, 2100)) -&gt; np.ndarray:
     for index, start in enumerate(starts):
         mask[int(start):int(start+lengths[index])] = 1
         current_position += lengths[index]
-        
+
     return mask.reshape(height, width).T
 
 
 def maskToRle(mask: np.ndarray) -&gt; str:
     &#34;&#34;&#34;
-    Conversion d&#39;un masque en encodage RLE  
-    La presence d&#39;un pixel dans le masque se materialise par la valeur 1,  
-    autrement la valeur reste a 0  
+     Conversion d&#39;un masque en encodage RLE  
+     La presence d&#39;un pixel dans le masque se materialise par la valeur 1,  
+     autrement la valeur reste a 0  
   
      Paramètre  
      ----------  
@@ -120,25 +120,25 @@ def maskToRle(mask: np.ndarray) -&gt; str:
 
 def list_rleToMask(rle_list:[str], input_shape:tuple, reshape: tuple = None)  -&gt; np.ndarray :
     &#34;&#34;&#34;
-    Conversion d&#39;une liste d&#39;encodage RLE en liste de masques  
+     Conversion d&#39;une liste d&#39;encodage RLE en liste de masques  
   
      Paramètre  
      ----------  
-     rle_list    : liste des encodage RLE a convertir  
+     rle_list    : liste des encodage RLE à convertir  
      input_shape : taille d&#39;origine des masques  
      reshape     : facultatif, taille desiree en sortie  
   
      Retour  
      ----------  
-      np.ndarray : liste des masques  
-    &#34;&#34;&#34;  
+     np.ndarray : liste des masques  
+    &#34;&#34;&#34;
 
     nb_rle = len(rle_list)
     if reshape is None:
         mask_list = np.zeros((*input_shape, nb_rle))
     else:
         mask_list = np.zeros((*reshape, nb_rle))
-    
+
     for i, rle in enumerate(rle_list):
         if type(rle) is str:
             if reshape is None:
@@ -147,58 +147,59 @@ def list_rleToMask(rle_list:[str], input_shape:tuple, reshape: tuple = None)  -&
                 mask = rleToMask(rle, input_shape)
                 reshaped_mask = np_transposition(mask, reshape)
                 mask_list[:, :, i] = reshaped_mask
-    
+
     return mask_list
-    
+
 
 def list_maskToRle(mask_list:np.ndarray , reshape:tuple = None) -&gt; [str]:
     &#34;&#34;&#34;
-    Encodage d&#39;une liste de masques en codes RLE  
+     Encodage d&#39;une liste de masques en codes RLE  
   
      Paramètre  
      ----------  
-     mask_list   : liste des masques a encoder  
-     reshape     : facultatif, taille desiree des masques avant encodage  
+     mask_list   : liste des masques à encoder  
+     reshape     : facultatif, taille désirée des masques avant encodage  
   
      Retour  
      ----------  
-      liste de str : liste des codes RLE  
-    &#34;&#34;&#34; 
+     liste de str : liste des codes RLE  
+    &#34;&#34;&#34;
 
     width, height, nb_mask = mask_list.shape
-    
+
     rle_list = []
-    
+
     for i in range(nb_mask):
         mask = mask_list[:, :, i]
-        
+
         if reshape:
             mask = mask.astype(np.float32)
             mask = np_transposition(mask, reshape).astype(np.int64)
-        
+
         rle = maskToRle(mask)
         rle_list.append(rle)
-        
+
     return rle_list
-    
-        
+
+
 def surfaceFromRle(rle: str) -&gt; int:
-    &#34;&#34;&#34;Determination de la surface (en pixels) converte par le masque correspondage 
-       a l&#39;encodage RLE specifie en parametre  
+    &#34;&#34;&#34;
+     Détermination de la surface (en pixels) couverte par le masque correspondant  
+       à l&#39;encodage RLE spécifié en paramètre  
   
      Paramètre  
      ----------  
-     rle : encodage RLE a analyser  
+     rle : encodage RLE à analyser  
   
      Retour  
      ----------  
      int : surface couverte en pixels  
-    &#34;&#34;&#34;  
-    
-    
+    &#34;&#34;&#34;
+
+
     #Initialisation de la surface
     surface = 0
-    
+
     rleNumbers = [int(numstring) for numstring in rle.split(&#39; &#39;)]
     rlePairs = np.array(rleNumbers).reshape(-1,2)
 
@@ -206,13 +207,14 @@ def surfaceFromRle(rle: str) -&gt; int:
     #longueur de chaine
     for index,length in rlePairs:
         surface += length
-    
+
     return surface
 
 
 def imshowSuperimposed(nomImage: str, rle: str = &#39;&#39;, classe: str = &#39;Fish&#39;, repImage: str = &#39;.&#39;, rleSize: tuple = (1400,2100))-&gt; dict:
-    &#34;&#34;&#34;Superposition d&#39;une image RGB et de sa segmentation RLE, colorée par classe  
-      
+    &#34;&#34;&#34;
+     Superposition d&#39;une image RGB et de sa segmentation RLE, colorée par classe  
+  
      Paramètre  
      ----------  
      nomImage : nom de l&#39;image à afficher  
@@ -220,7 +222,7 @@ def imshowSuperimposed(nomImage: str, rle: str = &#39;&#39;, classe: str = &#39;
      rle : encodage RLE du masque à superposer  
      classe : nom de la classe du masque, parmi {&#39;Fish&#39;, &#39;Flower&#39;, &#39;Gravel&#39;, &#39;Sugar&#39;}  
      rleSize : taille du masque RLE en pixels  
-       
+  
      Retour  
      ----------  
      dict : {&#39;Superimposed&#39;: image ndarray (&#39;uint8&#39;) RGB avec sa segmentation,  
@@ -228,7 +230,7 @@ def imshowSuperimposed(nomImage: str, rle: str = &#39;&#39;, classe: str = &#39;
              &#39;Image&#39;: image originale ndarray (&#39;uint8&#39;) RGB,  
              &#39;Segmentation&#39;: image ndarray (&#39;uint8&#39;) RGB du masque de segmentation}  
     &#34;&#34;&#34;
-    
+
     #Initialisation du dictionnaire des couleurs (sur base de RGB)
     couleurs = {&#39;Fish&#39;:  2, #blue
                 &#39;Flower&#39;:0, #red
@@ -256,67 +258,71 @@ def imshowSuperimposed(nomImage: str, rle: str = &#39;&#39;, classe: str = &#39;
     #Superposition de l&#39;image et de son masque
     #Images converties en numpy.array pour utiliser la fonction addWeighted d&#39;OpenCV
     #Cette fonction est la plus pratique pour conserver l&#39;alpha de l&#39;image originale à 1
-    
+
     imgOverlay = cv2.addWeighted(np.array(img), 1, np.array(imgMask), 0.5, 0.0)
-    
+
     #Si le code rle fourni était vide, on efface la classe par défaut
     if rle == &#39;&#39;: classe = &#39;&#39;
-    
+
     dico = {&#39;Superimposed&#39; : imgOverlay,
             &#39;Label&#39; : nomImage + &#39; / &#39; + classe,
             &#39;Image&#39; : np.array(img),
             &#39;Segmentation&#39;: np.array(imgMask)}
-    
+
     return dico
 
 
 def trace_boundingBox(image : np.ndarray,
                       mask : np.ndarray,
                       color : tuple = (0,0,255),
-                      width : int = 10):
+                      width : int = 10,
+                      smin  : int = 0):
     &#34;&#34;&#34;
-    Draw a bounding box on image
-
-     Parameter
-     ----------
-     image : image on which we want to draw the box 
-     mask  : mask to process
-     color : color we want to use to draw the box edges
-     width : box edges&#39;s width
-
-     Return
-     ----------
-     None
+     Draw a bounding box over an image  
+  
+     Parameter  
+     ----------  
+     image : image on which we want to draw the box  
+     mask  : mask to process  
+     color : color we want to use to draw the box edges  
+     width : box edges&#39;s width  
+     smin  : minimum surface to trace  
+  
+     Return  
+     ----------  
+     None  
     &#34;&#34;&#34;
-    
+
     lbl = label(mask)
     props = regionprops(lbl)
     for prop in props:
         coin1 = (prop.bbox[3], prop.bbox[2])
         coin2 = (prop.bbox[1], prop.bbox[0])
-        cv2.rectangle(image, coin2, coin1, color, width)
+        surface = (prop.bbox[1] - prop.bbox[3]) * (prop.bbox[0]-prop.bbox[2])
+        if surface &gt;= smin:
+            cv2.rectangle(image, coin2, coin1, color, width)
     return None
 
-        
-def maskInColor(image : np.ndarray, 
-                mask : np.ndarray, 
-                color : tuple = (0,0,255), 
+
+def maskInColor(image : np.ndarray,
+                mask : np.ndarray,
+                color : tuple = (0,0,255),
                 alpha : float=0.2) -&gt; np.ndarray:
     &#34;&#34;&#34;
-    Superposition d&#39;un masque sur une image  
+     Superposition d&#39;un masque sur une image  
   
      Parameter  
      ----------  
-     image : image sur laqelle le masque doit etre superpose  
-     mask  : masque a superposer  
-     color : colour du masque  
-     alpha : coefficient d&#39;opacite  
+     image : image sur laqelle le masque doit être superposé  
+     mask  : masque à superposer  
+     color : couleur du masque  
+     alpha : coefficient d&#39;opacité  
   
      Return  
      ----------  
      np.array : image resultant de la superposition  
     &#34;&#34;&#34;
-    
+
     image = np.array(image)
     H,W,C = image.shape
     mask    = mask.reshape(H,W,1)
@@ -327,32 +333,32 @@ def maskInColor(image : np.ndarray,
     return overlay
 
 
-def cloudInColor(image : np.ndarray, 
-                 mask : np.ndarray, 
+def cloudInColor(image : np.ndarray,
+                 mask : np.ndarray,
                  color : tuple = (0,0,255),
-                 alpha : float = 0.7, 
+                 alpha : float = 0.7,
                  threshold : int = 90) -&gt; np.ndarray:
     &#34;&#34;&#34;
-    Coloration des pixels d&#39;une image sur la base d&#39;un seuil  
-  
-     Parameter  
-     ----------  
-     image : image a colorer  
-     mask  : masque de traitement  
-     color : couleur a appliquer  
-     alpha : coefficient d&#39;opacite  
-     threshold : seuil  
-       
-     Return  
-     ----------  
-     np.array : image coloree  
+    Coloration des pixels d&#39;une image sur la base d&#39;un seuil
+
+     Parameter
+     ----------
+     image : image a colorer
+     mask  : masque de traitement
+     color : couleur a appliquer
+     alpha : coefficient d&#39;opacite
+     threshold : seuil
+
+     Return
+     ----------
+     np.array : image coloree
     &#34;&#34;&#34;
-        
+
     imZone = cv2.bitwise_and(image, image, mask=mask)
     image_gray = cv2.cvtColor(imZone, cv2.COLOR_RGB2GRAY)
-    (thresh, blackAndWhiteImage) = cv2.threshold(image_gray, 
-                                                 threshold, 
-                                                 255, 
+    (thresh, blackAndWhiteImage) = cv2.threshold(image_gray,
+                                                 threshold,
+                                                 255,
                                                  cv2.THRESH_BINARY)
     inlay = maskInColor(image, blackAndWhiteImage, color=color, alpha=alpha)
     return inlay</code></pre>
@@ -369,52 +375,48 @@ def cloudInColor(image : np.ndarray,
 <span>def <span class="ident">cloudInColor</span></span>(<span>image: numpy.ndarray, mask: numpy.ndarray, color: tuple = (0, 0, 255), alpha: float = 0.7, threshold: int = 90) ‑> numpy.ndarray</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Coloration des pixels d'une image sur la base d'un seuil
-</p>
-<p>Parameter
-</p>
+<div class="desc"><p>Coloration des pixels d'une image sur la base d'un seuil</p>
+<p>Parameter</p>
 <hr>
-<p>image : image a colorer<br>
+<p>image : image a colorer
 mask
-: masque de traitement<br>
-color : couleur a appliquer<br>
-alpha : coefficient d'opacite<br>
-threshold : seuil
-</p>
-<p>Return
-</p>
+: masque de traitement
+color : couleur a appliquer
+alpha : coefficient d'opacite
+threshold : seuil</p>
+<p>Return</p>
 <hr>
 <p>np.array : image coloree</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def cloudInColor(image : np.ndarray, 
-                 mask : np.ndarray, 
+<pre><code class="python">def cloudInColor(image : np.ndarray,
+                 mask : np.ndarray,
                  color : tuple = (0,0,255),
-                 alpha : float = 0.7, 
+                 alpha : float = 0.7,
                  threshold : int = 90) -&gt; np.ndarray:
     &#34;&#34;&#34;
-    Coloration des pixels d&#39;une image sur la base d&#39;un seuil  
-  
-     Parameter  
-     ----------  
-     image : image a colorer  
-     mask  : masque de traitement  
-     color : couleur a appliquer  
-     alpha : coefficient d&#39;opacite  
-     threshold : seuil  
-       
-     Return  
-     ----------  
-     np.array : image coloree  
+    Coloration des pixels d&#39;une image sur la base d&#39;un seuil
+
+     Parameter
+     ----------
+     image : image a colorer
+     mask  : masque de traitement
+     color : couleur a appliquer
+     alpha : coefficient d&#39;opacite
+     threshold : seuil
+
+     Return
+     ----------
+     np.array : image coloree
     &#34;&#34;&#34;
-        
+
     imZone = cv2.bitwise_and(image, image, mask=mask)
     image_gray = cv2.cvtColor(imZone, cv2.COLOR_RGB2GRAY)
-    (thresh, blackAndWhiteImage) = cv2.threshold(image_gray, 
-                                                 threshold, 
-                                                 255, 
+    (thresh, blackAndWhiteImage) = cv2.threshold(image_gray,
+                                                 threshold,
+                                                 255,
                                                  cv2.THRESH_BINARY)
     inlay = maskInColor(image, blackAndWhiteImage, color=color, alpha=alpha)
     return inlay</code></pre>
@@ -443,8 +445,9 @@ rleSize : taille du masque RLE en pixels
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def imshowSuperimposed(nomImage: str, rle: str = &#39;&#39;, classe: str = &#39;Fish&#39;, repImage: str = &#39;.&#39;, rleSize: tuple = (1400,2100))-&gt; dict:
-    &#34;&#34;&#34;Superposition d&#39;une image RGB et de sa segmentation RLE, colorée par classe  
-      
+    &#34;&#34;&#34;
+     Superposition d&#39;une image RGB et de sa segmentation RLE, colorée par classe  
+  
      Paramètre  
      ----------  
      nomImage : nom de l&#39;image à afficher  
@@ -452,7 +455,7 @@ rleSize : taille du masque RLE en pixels
      rle : encodage RLE du masque à superposer  
      classe : nom de la classe du masque, parmi {&#39;Fish&#39;, &#39;Flower&#39;, &#39;Gravel&#39;, &#39;Sugar&#39;}  
      rleSize : taille du masque RLE en pixels  
-       
+  
      Retour  
      ----------  
      dict : {&#39;Superimposed&#39;: image ndarray (&#39;uint8&#39;) RGB avec sa segmentation,  
@@ -460,7 +463,7 @@ rleSize : taille du masque RLE en pixels
              &#39;Image&#39;: image originale ndarray (&#39;uint8&#39;) RGB,  
              &#39;Segmentation&#39;: image ndarray (&#39;uint8&#39;) RGB du masque de segmentation}  
     &#34;&#34;&#34;
-    
+
     #Initialisation du dictionnaire des couleurs (sur base de RGB)
     couleurs = {&#39;Fish&#39;:  2, #blue
                 &#39;Flower&#39;:0, #red
@@ -488,17 +491,17 @@ rleSize : taille du masque RLE en pixels
     #Superposition de l&#39;image et de son masque
     #Images converties en numpy.array pour utiliser la fonction addWeighted d&#39;OpenCV
     #Cette fonction est la plus pratique pour conserver l&#39;alpha de l&#39;image originale à 1
-    
+
     imgOverlay = cv2.addWeighted(np.array(img), 1, np.array(imgMask), 0.5, 0.0)
-    
+
     #Si le code rle fourni était vide, on efface la classe par défaut
     if rle == &#39;&#39;: classe = &#39;&#39;
-    
+
     dico = {&#39;Superimposed&#39; : imgOverlay,
             &#39;Label&#39; : nomImage + &#39; / &#39; + classe,
             &#39;Image&#39; : np.array(img),
             &#39;Segmentation&#39;: np.array(imgMask)}
-    
+
     return dico</code></pre>
 </details>
 </dd>
@@ -508,17 +511,13 @@ rleSize : taille du masque RLE en pixels
 <dd>
 <div class="desc"><p>Encodage d'une liste de masques en codes RLE
 </p>
-<p>Paramètre
-</p>
-<hr>
+<h2 id="parametre">Paramètre</h2>
 <p>mask_list
-: liste des masques a encoder<br>
+: liste des masques à encoder<br>
 reshape
-: facultatif, taille desiree des masques avant encodage
+: facultatif, taille désirée des masques avant encodage
 </p>
-<p>Retour
-</p>
-<hr>
+<h2 id="retour">Retour</h2>
 <p>liste de str : liste des codes RLE</p></div>
 <details class="source">
 <summary>
@@ -526,32 +525,32 @@ reshape
 </summary>
 <pre><code class="python">def list_maskToRle(mask_list:np.ndarray , reshape:tuple = None) -&gt; [str]:
     &#34;&#34;&#34;
-    Encodage d&#39;une liste de masques en codes RLE  
+     Encodage d&#39;une liste de masques en codes RLE  
   
      Paramètre  
      ----------  
-     mask_list   : liste des masques a encoder  
-     reshape     : facultatif, taille desiree des masques avant encodage  
+     mask_list   : liste des masques à encoder  
+     reshape     : facultatif, taille désirée des masques avant encodage  
   
      Retour  
      ----------  
-      liste de str : liste des codes RLE  
-    &#34;&#34;&#34; 
+     liste de str : liste des codes RLE  
+    &#34;&#34;&#34;
 
     width, height, nb_mask = mask_list.shape
-    
+
     rle_list = []
-    
+
     for i in range(nb_mask):
         mask = mask_list[:, :, i]
-        
+
         if reshape:
             mask = mask.astype(np.float32)
             mask = np_transposition(mask, reshape).astype(np.int64)
-        
+
         rle = maskToRle(mask)
         rle_list.append(rle)
-        
+
     return rle_list</code></pre>
 </details>
 </dd>
@@ -561,18 +560,14 @@ reshape
 <dd>
 <div class="desc"><p>Conversion d'une liste d'encodage RLE en liste de masques
 </p>
-<p>Paramètre
-</p>
-<hr>
+<h2 id="parametre">Paramètre</h2>
 <p>rle_list
-: liste des encodage RLE a convertir<br>
+: liste des encodage RLE à convertir<br>
 input_shape : taille d'origine des masques<br>
 reshape
 : facultatif, taille desiree en sortie
 </p>
-<p>Retour
-</p>
-<hr>
+<h2 id="retour">Retour</h2>
 <p>np.ndarray : liste des masques</p></div>
 <details class="source">
 <summary>
@@ -580,25 +575,25 @@ reshape
 </summary>
 <pre><code class="python">def list_rleToMask(rle_list:[str], input_shape:tuple, reshape: tuple = None)  -&gt; np.ndarray :
     &#34;&#34;&#34;
-    Conversion d&#39;une liste d&#39;encodage RLE en liste de masques  
+     Conversion d&#39;une liste d&#39;encodage RLE en liste de masques  
   
      Paramètre  
      ----------  
-     rle_list    : liste des encodage RLE a convertir  
+     rle_list    : liste des encodage RLE à convertir  
      input_shape : taille d&#39;origine des masques  
      reshape     : facultatif, taille desiree en sortie  
   
      Retour  
      ----------  
-      np.ndarray : liste des masques  
-    &#34;&#34;&#34;  
+     np.ndarray : liste des masques  
+    &#34;&#34;&#34;
 
     nb_rle = len(rle_list)
     if reshape is None:
         mask_list = np.zeros((*input_shape, nb_rle))
     else:
         mask_list = np.zeros((*reshape, nb_rle))
-    
+
     for i, rle in enumerate(rle_list):
         if type(rle) is str:
             if reshape is None:
@@ -607,7 +602,7 @@ reshape
                 mask = rleToMask(rle, input_shape)
                 reshaped_mask = np_transposition(mask, reshape)
                 mask_list[:, :, i] = reshaped_mask
-    
+
     return mask_list</code></pre>
 </details>
 </dd>
@@ -617,42 +612,38 @@ reshape
 <dd>
 <div class="desc"><p>Superposition d'un masque sur une image
 </p>
-<p>Parameter
-</p>
-<hr>
-<p>image : image sur laqelle le masque doit etre superpose<br>
+<h2 id="parameter">Parameter</h2>
+<p>image : image sur laqelle le masque doit être superposé<br>
 mask
-: masque a superposer<br>
-color : colour du masque<br>
-alpha : coefficient d'opacite
+: masque à superposer<br>
+color : couleur du masque<br>
+alpha : coefficient d'opacité
 </p>
-<p>Return
-</p>
-<hr>
+<h2 id="return">Return</h2>
 <p>np.array : image resultant de la superposition</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def maskInColor(image : np.ndarray, 
-                mask : np.ndarray, 
-                color : tuple = (0,0,255), 
+<pre><code class="python">def maskInColor(image : np.ndarray,
+                mask : np.ndarray,
+                color : tuple = (0,0,255),
                 alpha : float=0.2) -&gt; np.ndarray:
     &#34;&#34;&#34;
-    Superposition d&#39;un masque sur une image  
+     Superposition d&#39;un masque sur une image  
   
      Parameter  
      ----------  
-     image : image sur laqelle le masque doit etre superpose  
-     mask  : masque a superposer  
-     color : colour du masque  
-     alpha : coefficient d&#39;opacite  
+     image : image sur laqelle le masque doit être superposé  
+     mask  : masque à superposer  
+     color : couleur du masque  
+     alpha : coefficient d&#39;opacité  
   
      Return  
      ----------  
      np.array : image resultant de la superposition  
     &#34;&#34;&#34;
-    
+
     image = np.array(image)
     H,W,C = image.shape
     mask    = mask.reshape(H,W,1)
@@ -671,14 +662,10 @@ alpha : coefficient d'opacite
 La presence d'un pixel dans le masque se materialise par la valeur 1,<br>
 autrement la valeur reste a 0
 </p>
-<p>Paramètre
-</p>
-<hr>
+<h2 id="parametre">Paramètre</h2>
 <p>mask : masque a encoder
 </p>
-<p>Retour
-</p>
-<hr>
+<h2 id="retour">Retour</h2>
 <p>str : encodage RLE</p></div>
 <details class="source">
 <summary>
@@ -686,9 +673,9 @@ autrement la valeur reste a 0
 </summary>
 <pre><code class="python">def maskToRle(mask: np.ndarray) -&gt; str:
     &#34;&#34;&#34;
-    Conversion d&#39;un masque en encodage RLE  
-    La presence d&#39;un pixel dans le masque se materialise par la valeur 1,  
-    autrement la valeur reste a 0  
+     Conversion d&#39;un masque en encodage RLE  
+     La presence d&#39;un pixel dans le masque se materialise par la valeur 1,  
+     autrement la valeur reste a 0  
   
      Paramètre  
      ----------  
@@ -710,38 +697,38 @@ autrement la valeur reste a 0
 <span>def <span class="ident">np_transposition</span></span>(<span>image: numpy.ndarray, input_shape: tuple) ‑> numpy.ndarray</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Transposition d'un np array afin d'inverser les dimensions (hauteur, largeur) <br>
+<div class="desc"><p>Transposition d'un np array afin d'inverser les dimensions (hauteur, largeur)<br>
 vers (largeur, hauteur).<br>
 Si les dimensions initiales sont différentes de (height,width), un redimensionnement est effectué.
 </p>
 <p>Paramètre
 </p>
 <hr>
-<p>image : np array a transposer <br>
+<p>image : np array a transposer<br>
 input_shape : dimensions de l'image cible
 </p>
 <p>Retour
 </p>
 <hr>
-<p>np.array : image transposee</p></div>
+<p>np.array : image transposée</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def np_transposition(image: np.ndarray, input_shape: tuple) -&gt; np.ndarray:
     &#34;&#34;&#34;
-    Transposition d&#39;un np array afin d&#39;inverser les dimensions (hauteur, largeur)   
+    Transposition d&#39;un np array afin d&#39;inverser les dimensions (hauteur, largeur)  
     vers (largeur, hauteur).  
     Si les dimensions initiales sont différentes de (height,width), un redimensionnement est effectué.  
   
      Paramètre  
      ----------  
-     image : np array a transposer   
+     image : np array a transposer  
      input_shape : dimensions de l&#39;image cible  
   
      Retour  
      ----------  
-     np.array : image transposee  
+     np.array : image transposée  
     &#34;&#34;&#34;
 
     height, width = input_shape
@@ -754,16 +741,12 @@ input_shape : dimensions de l'image cible
 <dd>
 <div class="desc"><p>Conversion d'un codage RLE en masque
 </p>
-<p>Paramètre
-</p>
-<hr>
+<h2 id="parametre">Paramètre</h2>
 <p>rle
-: encodage RLE a convertir <br>
+: encodage RLE a convertir<br>
 shape : format du masque
 </p>
-<p>Retour
-</p>
-<hr>
+<h2 id="retour">Retour</h2>
 <p>np.array : masque</p></div>
 <details class="source">
 <summary>
@@ -771,11 +754,11 @@ shape : format du masque
 </summary>
 <pre><code class="python">def rleToMask(rle: str, shape: tuple  =(1400, 2100)) -&gt; np.ndarray:
     &#34;&#34;&#34;
-    Conversion d&#39;un codage RLE en masque  
+     Conversion d&#39;un codage RLE en masque  
   
      Paramètre  
      ----------  
-     rle   : encodage RLE a convertir   
+     rle   : encodage RLE a convertir  
      shape : format du masque  
   
      Retour  
@@ -784,9 +767,9 @@ shape : format du masque
     &#34;&#34;&#34;
 
     width, height = shape[:2]
-    
+
     mask= np.zeros( width*height ).astype(np.uint8)
-    
+
     array = np.asarray([int(x) for x in rle.split()])
     starts = array[0::2]
     lengths = array[1::2]
@@ -795,7 +778,7 @@ shape : format du masque
     for index, start in enumerate(starts):
         mask[int(start):int(start+lengths[index])] = 1
         current_position += lengths[index]
-        
+
     return mask.reshape(height, width).T</code></pre>
 </details>
 </dd>
@@ -803,11 +786,11 @@ shape : format du masque
 <span>def <span class="ident">surfaceFromRle</span></span>(<span>rle: str) ‑> int</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Determination de la surface (en pixels) converte par le masque correspondage
-a l'encodage RLE specifie en parametre
+<div class="desc"><p>Détermination de la surface (en pixels) couverte par le masque correspondant<br>
+à l'encodage RLE spécifié en paramètre
 </p>
 <h2 id="parametre">Paramètre</h2>
-<p>rle : encodage RLE a analyser
+<p>rle : encodage RLE à analyser
 </p>
 <h2 id="retour">Retour</h2>
 <p>int : surface couverte en pixels</p></div>
@@ -816,22 +799,23 @@ a l'encodage RLE specifie en parametre
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def surfaceFromRle(rle: str) -&gt; int:
-    &#34;&#34;&#34;Determination de la surface (en pixels) converte par le masque correspondage 
-       a l&#39;encodage RLE specifie en parametre  
+    &#34;&#34;&#34;
+     Détermination de la surface (en pixels) couverte par le masque correspondant  
+       à l&#39;encodage RLE spécifié en paramètre  
   
      Paramètre  
      ----------  
-     rle : encodage RLE a analyser  
+     rle : encodage RLE à analyser  
   
      Retour  
      ----------  
      int : surface couverte en pixels  
-    &#34;&#34;&#34;  
-    
-    
+    &#34;&#34;&#34;
+
+
     #Initialisation de la surface
     surface = 0
-    
+
     rleNumbers = [int(numstring) for numstring in rle.split(&#39; &#39;)]
     rlePairs = np.array(rleNumbers).reshape(-1,2)
 
@@ -839,24 +823,26 @@ a l'encodage RLE specifie en parametre
     #longueur de chaine
     for index,length in rlePairs:
         surface += length
-    
+
     return surface</code></pre>
 </details>
 </dd>
 <dt id="packages.graphics.trace_boundingBox"><code class="name flex">
-<span>def <span class="ident">trace_boundingBox</span></span>(<span>image: numpy.ndarray, mask: numpy.ndarray, color: tuple = (0, 0, 255), width: int = 10)</span>
+<span>def <span class="ident">trace_boundingBox</span></span>(<span>image: numpy.ndarray, mask: numpy.ndarray, color: tuple = (0, 0, 255), width: int = 10, smin: int = 0)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Draw a bounding box on image</p>
-<p>Parameter</p>
-<hr>
-<p>image : image on which we want to draw the box
+<div class="desc"><p>Draw a bounding box over an image
+</p>
+<h2 id="parameter">Parameter</h2>
+<p>image : image on which we want to draw the box<br>
 mask
-: mask to process
-color : color we want to use to draw the box edges
-width : box edges's width</p>
-<p>Return</p>
-<hr>
+: mask to process<br>
+color : color we want to use to draw the box edges<br>
+width : box edges's width<br>
+smin
+: minimum surface to trace
+</p>
+<h2 id="return">Return</h2>
 <p>None</p></div>
 <details class="source">
 <summary>
@@ -865,28 +851,32 @@ width : box edges's width</p>
 <pre><code class="python">def trace_boundingBox(image : np.ndarray,
                       mask : np.ndarray,
                       color : tuple = (0,0,255),
-                      width : int = 10):
+                      width : int = 10,
+                      smin  : int = 0):
     &#34;&#34;&#34;
-    Draw a bounding box on image
-
-     Parameter
-     ----------
-     image : image on which we want to draw the box 
-     mask  : mask to process
-     color : color we want to use to draw the box edges
-     width : box edges&#39;s width
-
-     Return
-     ----------
-     None
+     Draw a bounding box over an image  
+  
+     Parameter  
+     ----------  
+     image : image on which we want to draw the box  
+     mask  : mask to process  
+     color : color we want to use to draw the box edges  
+     width : box edges&#39;s width  
+     smin  : minimum surface to trace  
+  
+     Return  
+     ----------  
+     None  
     &#34;&#34;&#34;
-    
+
     lbl = label(mask)
     props = regionprops(lbl)
     for prop in props:
         coin1 = (prop.bbox[3], prop.bbox[2])
         coin2 = (prop.bbox[1], prop.bbox[0])
-        cv2.rectangle(image, coin2, coin1, color, width)
+        surface = (prop.bbox[1] - prop.bbox[3]) * (prop.bbox[0]-prop.bbox[2])
+        if surface &gt;= smin:
+            cv2.rectangle(image, coin2, coin1, color, width)
     return None</code></pre>
 </details>
 </dd>
