@@ -18,16 +18,16 @@ import numpy as np
 
 def builClassifModel(tx: int = 175, ty: int = 262):
     '''
-        Fonction de création de l'architecture du modèle de classification
-            "NebulaClassificationPhase2"
-        Paramètre
-        ----------
-        tx : nombre de pixels en x de l'image
-        ty : nombre de pixels en y de l'image
-
-        Retour
-        ----------
-        tensorflow.keras.Model
+        Fonction de création de l'architecture du modèle de classification  
+            "NebulaClassificationPhase2"  
+        Paramètre  
+        ----------  
+        tx : nombre de pixels en x de l'image  
+        ty : nombre de pixels en y de l'image  
+  
+        Retour  
+        ----------  
+        tensorflow.keras.Model  
     '''
     # Model sequentiel
     model = Sequential()
@@ -56,25 +56,25 @@ def buildSegmentationModel1(sm,
                             target_size: tuple = (320, 480),
                             nb_canaux: int = 3):
     '''
-        Fonction de création de l'architecture du modèle 1 de segmentation
+        Fonction de création de l'architecture du modèle 1 de segmentation  
 
-        Attention : l'instance "sm" de l'import segmentation_models necessite
-        d'avoir execute au prealable dans le programme appelant les instructions
-        suivantes :
-        > %env SM_FRAMEWORK=tf.keras
-        > pip install segmentation_models
-        > import segmentation_models as sm
-
-        Paramètre
-        ----------
-        sm : instance de l'import segmentation_models
-        nb_calsses : nombre de classes cibles
-        target_size : taille des images d'entree
-        nb_canaux : nb de canaux des images d'entree
-
-        Retour
-        ----------
-        tensorflow.keras.Model
+          Attention : l'instance "sm" de l'import segmentation_models necessite  
+        d'avoir execute au prealable dans le programme appelant les instructions  
+        suivantes :  
+        > %env SM_FRAMEWORK=tf.keras  
+        > pip install segmentation_models  
+        > import segmentation_models as sm  
+  
+        Paramètre  
+        ----------  
+        sm : instance de l'import segmentation_models  
+        nb_calsses : nombre de classes cibles  
+        target_size : taille des images d'entree  
+        nb_canaux : nb de canaux des images d'entree  
+  
+        Retour  
+        ----------  
+        tensorflow.keras.Model  
     '''
     BACKBONE = 'resnet18'
     model = sm.Unet(BACKBONE, 
@@ -89,25 +89,25 @@ def buildSegmentationModel2(sm,
                             target_size: tuple = (320, 480),
                             nb_canaux: int = 3):
     '''
-        Fonction de création de l'architecture du modèle 2 de segmentation
+        Fonction de création de l'architecture du modèle 2 de segmentation  
 
-        Attention : l'instance "sm" de l'import segmentation_models necessite
-        d'avoir execute au prealable dans le programme appelant les instructions
-        suivantes :
-        > %env SM_FRAMEWORK=tf.keras
-        > pip install segmentation_models
-        > import segmentation_models as sm
+        Attention : l'instance "sm" de l'import segmentation_models necessite  
+        d'avoir execute au prealable dans le programme appelant les instructions  
+        suivantes :  
+        > %env SM_FRAMEWORK=tf.keras  
+        > pip install segmentation_models  
+        > import segmentation_models as sm  
 
-        Paramètre
-        ----------
-        sm : instance de l'import segmentation_models
-        nb_calsses : nombre de classes cibles
-        target_size : taille des images d'entree
-        nb_canaux : nb de canaux des images d'entree
-
-        Retour
-        ----------
-        tensorflow.keras.Model
+        Paramètre  
+        ----------  
+        sm : instance de l'import segmentation_models  
+        nb_calsses : nombre de classes cibles  
+        target_size : taille des images d'entree  
+        nb_canaux : nb de canaux des images d'entree  
+  
+        Retour  
+        ----------  
+        tensorflow.keras.Model  
     '''
     BACKBONE = 'efficientnetb1'
     model = sm.Linknet(BACKBONE, 
@@ -119,27 +119,27 @@ def buildSegmentationModel2(sm,
 
 def cb_earlyStopping(patience=6, monitor='val_loss'):
     '''
-        Création d'un callback EarlyStopping pré-paramétré
-        Paramètre
-        ----------
-        Cf. documentation Keras
-
-        Retour
-        ----------
-        tensorflow.keras.callbacks
+        Création d'un callback EarlyStopping pré-paramétré  
+        Paramètre  
+        ----------  
+        Cf. documentation Keras  
+  
+        Retour  
+        ----------  
+        tensorflow.keras.callbacks  
     '''
     return callbacks.EarlyStopping(monitor=monitor, patience=patience)
 
 def cb_modelCheckPoint(filename, weights_only = True, monitor='val_loss'):
     '''
-        Création d'un callback ModelCheckpoint pré-paramétré
-        Paramètre
-        ----------
-        Cf. documentation Keras
-
-        Retour
-        ----------
-        tensorflow.keras.callbacks
+        Création d'un callback ModelCheckpoint pré-paramétré  
+        Paramètre  
+        ----------  
+        Cf. documentation Keras  
+  
+        Retour  
+        ----------  
+        tensorflow.keras.callbacks  
     '''
     return callbacks.ModelCheckpoint(filepath = filename,
                                        monitor = monitor,
@@ -150,14 +150,14 @@ def cb_modelCheckPoint(filename, weights_only = True, monitor='val_loss'):
 
 def cb_reduceLr(patience=3, factor=0.08, monitor='val_loss'):
     '''
-        Création d'un callback ReduceLROnPlateau pré-paramétré
-        Paramètre
-        ----------
-        Cf. documentation Keras
-
-        Retour
-        ----------
-        tensorflow.keras.callbacks
+        Création d'un callback ReduceLROnPlateau pré-paramétré  
+        Paramètre  
+        ----------  
+        Cf. documentation Keras  
+  
+        Retour  
+        ----------  
+        tensorflow.keras.callbacks  
     '''
     return callbacks.ReduceLROnPlateau(monitor = monitor,
                                          patience=patience,
@@ -167,47 +167,47 @@ def cb_reduceLr(patience=3, factor=0.08, monitor='val_loss'):
 
 class NebulaWrapper(Model):
   '''
-      Surcharge d'un modele avec les fonctions de base
-      Note : Si l'on charge les poids, inutile de réentraîner le modèle
-
-      Utilisation
-      ----------
-      mwrapper = NebulaWrapper(model, autoInit = True)
-      mwrapper.compile()
-      mwrapper.fit(generator,
-                epochs, batch_size)
-      pred = mwrapper.predict(testGen,
-                          filter = True,
-                          threshold = 0.5)
-      Méthodes
-      ----------
-      __init__(model, autoInit, initWeights)
-          model : instance du modele a wrapper
-          autoInit : pour charger les poids pré-entraînés
-          initWeights : chemin vers le fichier de poids pré-entraînés
-      compile(optimizer, loss, metrics)
-          optimizer : tf.keras.optimizers.Optimizer ou str (par ex. 'adam')
-          loss : tf.keras.losses.Loss ou str (par ex. 'binary_crossentropy')
-          metrics : tf.keras.metric.Metric ou str (par ex. 'categorical_accuracy')
-      predict(x, filter, threshold)
-          x : générateur ou np.ndarray renvoyant X, y :
-              X : [batchSize, X-dim, Y-dim, 1]
-              y : [batchsize, 4]
-          filter : True pour filtrer les prédictions
-          threshold : si y >= threshold: 1, sinon 0
-      fit(...)
-          Voir documentation Keras.
-          Par défaut, callbacks=[EarlyStopping(),
-                     ModelCheckpoint(filename = 'ckptSave'),
-                     ReduceLROnPlateau()]
-
-      Retour
-      ----------
-      N/A
+      Surcharge d'un modele avec les fonctions de base  
+      Note : Si l'on charge les poids, inutile de réentraîner le modèle  
+  
+      Utilisation  
+      ----------  
+      mwrapper = NebulaWrapper(model, autoInit = True)  
+      mwrapper.compile()  
+      mwrapper.fit(generator,  
+                epochs, batch_size)  
+      pred = mwrapper.predict(testGen,  
+                          filter = True,  
+                          threshold = 0.5)  
+      Méthodes  
+      ----------  
+      __init__(model, autoInit, initWeights)  
+          model : instance du modele a wrapper  
+          autoInit : pour charger les poids pré-entraînés  
+          initWeights : chemin vers le fichier de poids pré-entraînés  
+      compile(optimizer, loss, metrics)  
+          optimizer : tf.keras.optimizers.Optimizer ou str (par ex. 'adam')  
+          loss : tf.keras.losses.Loss ou str (par ex. 'binary_crossentropy')  
+          metrics : tf.keras.metric.Metric ou str (par ex. 'categorical_accuracy')  
+      predict(x, filter, threshold)  
+          x : générateur ou np.ndarray renvoyant X, y :  
+              X : [batchSize, X-dim, Y-dim, 1]  
+              y : [batchsize, 4]  
+          filter : True pour filtrer les prédictions  
+          threshold : si y >= threshold: 1, sinon 0  
+      fit(...)  
+          Voir documentation Keras.  
+          Par défaut, callbacks=[EarlyStopping(),  
+                     ModelCheckpoint(filename = 'ckptSave'),  
+                     ReduceLROnPlateau()]  
+  
+      Retour  
+      ----------  
+      N/A  
   '''
   def __init__(self,
                model,
-               autoInit: bool = True,
+               autoInit: bool = False,
                initWeights: str = 'chkpt_classif/checkpoint3',
                callbacks: list = [],
                *args, **kwargs):

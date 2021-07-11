@@ -17,19 +17,20 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator, img_to_arra
 
 
 def splitValid(*args, randomState:int = 123, test_size:(float,int) = 0.2, shuffle:bool = True):
-    """Separation d'un set en deux parties distinctes
-
-     Paramètre
-     ----------
-     X           : set a separer
-     y           : variables d'interets (peut etre omise)
-     randomState : graine
-     test_size   : proportions des donnees entre les deux split
-     shuffle     : melange ou non des donnees avant le split
-
-     Retour
-     ----------
-     arrays : ensemble des sets resultants de la separation
+    """
+     Séparation d'un set en deux parties distinctes  
+  
+     Paramètre  
+     ----------  
+     X           : set à séparer  
+     y           : variables d'intérêts (peut être omis)  
+     randomState : graine  
+     test_size   : proportions des données entre les deux split  
+     shuffle     : mélange ou non des données avant le split  
+  
+     Retour  
+     ----------  
+     arrays : ensemble des sets resultants de la séparation  
     """
 
     if len(args)==1 :
@@ -48,22 +49,23 @@ def makeGen(X, y, folder: str = 'train_images/',
                   nb_canaux: int = 1,
                   shuffle: bool = False) -> ImageDataGenerator:
 
-    """Generation des images
-
-     Paramètre
-     ----------
-     X           : set a traiter
-     y           : variables d'interets
-     folder      : repertoire source
-     augment     : application d'une augmentation, autre que la normalisation
-     batchSize   : taille des batchs de sortie
-     target_size : taille cible des images
-     nb_canaux   : nombre de canaux (1: nuances de gris, 3: rgb)
-     shuffle     : melange aleatoire des enregistrements
-
-     Retour
-     ----------
-     ImageDataGenerator : generateur
+    """
+     Génération des images  
+  
+     Paramètre  
+     ----------  
+     X           : set à traiter  
+     y           : variables d'intérêt  
+     folder      : répertoire source  
+     augment     : application d'une augmentation, autre que la normalisation  
+     batchSize   : taille des batchs de sortie  
+     target_size : taille cible des images  
+     nb_canaux   : nombre de canaux (1: nuances de gris, 3: rgb)  
+     shuffle     : mélange aléatoire des enregistrements  
+  
+     Retour  
+     ----------  
+     ImageDataGenerator : générateur  
     """
 
     if augment:
@@ -100,15 +102,15 @@ def makeGen(X, y, folder: str = 'train_images/',
 
 def imageToTensor(image : np.ndarray):
     """
-    Chargement d'une image sous forme de tenseur
-
-     Parameter
-     ----------
-     image : image a charger
-
-     Return
-     ----------
-     tf.Tensor : tenseur
+     Chargement d'une image sous forme de tenseur  
+  
+     Parameter  
+     ----------  
+     image : image à charger  
+  
+     Return  
+     ----------  
+     tf.Tensor : tenseur  
     """
     im_tensor = img_to_array(image)
     im_tensor = np.expand_dims(im_tensor, axis=0)

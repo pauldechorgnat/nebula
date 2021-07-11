@@ -17,17 +17,18 @@ import pandas as pd
 def copy_data_from_drive(from_path: str = '/content/drive/MyDrive',
                          filename: str = 'understanding_cloud_organization.zip',
                          to_path: str = '.') -> bool:
-    """Copie des donnees compressees depuis le drive vers le repertoire courant
-
-     Paramètre
-     ----------
-     from_path : repertoire du fichier a copier
-     filename  : nom du fichier a copier
-     to_path   : repertoire de destination
-
-     Retour
-     ----------
-     booleen : True si l'operation a reussie, False dans le cas contraire
+    """
+     Copie des donnees compressees depuis le drive vers le repertoire courant  
+  
+     Paramètre  
+     ----------  
+     from_path : repertoire du fichier a copier  
+     filename  : nom du fichier a copier  
+     to_path   : repertoire de destination  
+  
+     Retour  
+     ----------  
+     booleen : True si l'operation a reussie, False dans le cas contraire  
     """
 
     try:
@@ -44,15 +45,16 @@ def copy_data_from_drive(from_path: str = '/content/drive/MyDrive',
 
 
 def load_train(filename: str = 'train.csv')-> pd.DataFrame:
-    """Chargement du repository d'entrainement
-
-     Paramètre
-     ----------
-     filename  : nom du fichier a charger
-
-     Retour
-     ----------
-     dataframe : donnees chargees
+    """
+     Chargement du repository d'entrainement  
+  
+     Paramètre  
+     ----------  
+     filename  : nom du fichier à charger  
+  
+     Retour  
+     ----------  
+     dataframe : donn-ées chargées  
     """
 
     train = pd.read_csv(filename)     #Lecture du fichier
@@ -61,17 +63,18 @@ def load_train(filename: str = 'train.csv')-> pd.DataFrame:
 
 
 def label_parsing(dataframe: pd.DataFrame, sep: str = '_', drop_na: bool = True)-> pd.DataFrame:
-    """Le label de la classe est isolee du nom de l'image, generant ainsi
-       deux colonnes "image" et "label". La colonne "Image_Label" est
-       ensuite supprimee.
-
-     Paramètre
-     ----------
-     dataframe  : nom dataframe a traiter
-
-     Retour
-     ----------
-     dataframe : dataframe dont les labels ont ete isoles
+    """
+     Le label de la classe est isolé du nom de l'image, générant ainsi  
+     deux colonnes "image" et "label". La colonne "Image_Label" est  
+     ensuite supprimée.  
+  
+     Paramètre  
+     ----------  
+     dataframe  : nom dataframe à traiter  
+  
+     Retour  
+     ----------  
+     dataframe : dataframe dont les labels ont été isolés  
     """
 
     try:
@@ -87,19 +90,20 @@ def label_parsing(dataframe: pd.DataFrame, sep: str = '_', drop_na: bool = True)
 
 
 def one_hot_encoding(dataframe: pd.DataFrame, reset_index: bool = True)-> pd.DataFrame:
-    """Les classes de nuages subissent un codage disjonctif, puis les donnees
-       son agregees par image. Les colonnees "label" et "EncodedPixels" sont
-       par ailleurs supprimees.
-
-     Paramètre
-     ----------
-     dataframe  : nom dataframe a traiter
-     reset_index : True -> les indexes sont reinitialises
-                   False -> la colonne "image" reste en index
-
-     Retour
-     ----------
-     dataframe : dataframe modifie
+    """
+     Les classes de nuages subissent un codage disjonctif, puis les données  
+     son agrégées par image. Les colonnees "label" et "EncodedPixels" sont  
+     par ailleurs supprimées.  
+  
+     Paramètre  
+     ----------  
+     dataframe  : nom dataframe à traiter  
+     reset_index : True -> les indexes sont réinitialisés  
+                   False -> la colonne "image" reste en index  
+  
+     Retour  
+     ----------  
+     dataframe : dataframe modifié  
     """
 
     try:
@@ -126,20 +130,21 @@ def one_hot_encoding(dataframe: pd.DataFrame, reset_index: bool = True)-> pd.Dat
 def get_labels(values: [(int, float)],
                labels: [str] = ['Fish', 'Flower', 'Gravel', 'Sugar'],
                threshold: [float] = [0.5, 0.5, 0.5, 0.5])-> (str, None):
-    """Generation d'un label complet correspondant aux valeurs superieures
-       ou egales aux seuils indiques
-
-     Paramètre
-     ----------
-     values  : valeurs des classes,
-               exemple [1, 0, 0, 1] s'il s'agit d'un one hot encoding
-                    ou [0.65, 0.34, 0.21, 0.87] s'il s'agit de probabilites
-     labels : textes des labels a concatener
-     threshold : seuils a appliquer, tout est a 0.5 par defaut
-
-     Retour
-     ----------
-     str : label complet
+    """
+     Génération d'un label complet correspondant aux valeurs supérieures  
+     ou égales aux seuils indiqués  
+  
+     Paramètre  
+     ----------  
+     values  : valeurs des classes,  
+               exemple [1, 0, 0, 1] s'il s'agit d'un one hot encoding  
+                    ou [0.65, 0.34, 0.21, 0.87] s'il s'agit de probabilités  
+     labels : textes des labels a concaténer  
+     threshold : seuils a appliquer, tout est a 0.5 par défaut  
+  
+     Retour  
+     ----------  
+     str : label complet  
     """
 
     try:
