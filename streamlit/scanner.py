@@ -226,6 +226,7 @@ def modGraphe(s, backgroundColor, textColor):
     graph.xgrid.grid_line_color = None
     graph.ygrid.grid_line_color = None
     graph.title.text_color=textColor
+    graph.title.text_font_style='normal'
     try:
       s.yaxis.axis_label_text_color=textColor
       s.xaxis.axis_label_text_color=textColor
