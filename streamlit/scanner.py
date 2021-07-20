@@ -348,7 +348,7 @@ def app():
               6. Then, identify clouds !
               </SPAN>
               ''', unsafe_allow_html=True)
-            gosegmentation = st.form_submit_button('Identify Cloud >>')  
+            gosegmentation = st.form_submit_button('Identify clouds >>')  
 
     video = True
     if sel_nature == 'Photo':
