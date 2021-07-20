@@ -180,7 +180,7 @@ def processSegmentation(model, im, couleurs, seg_option, maskSeuils, surfaces, d
             im = packages.maskInColor(im, mask, color=couleurs[k], alpha=0.3)
     
     if doClassif:
-        return im, preds_classes
+        return im, masks_surfaces
     else:
         return im
 
