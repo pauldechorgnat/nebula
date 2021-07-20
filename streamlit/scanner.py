@@ -17,6 +17,12 @@ from streamlit.report_thread import get_report_ctx
 import SessionState
 import base64
 import time
+import pandas as pd
+import bokeh
+from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure
+from bokeh.models import HoverTool, TapTool, ColumnDataSource
+from bokeh.layouts import gridplot,row,grid
 
 sm.set_framework('tf.keras')
 
@@ -158,15 +164,12 @@ def processSegmentation(model, im, couleurs, seg_option, maskSeuils, surfaces, d
     im_tensor = packages.imageToTensor(im) 
     preds_nasa= model.predict(im_tensor, verbose=0)
     
-    preds_classes = [0] * 4       #Init predictions array for classif results
-
+    masks_surfaces = [0] * 4       #Init predictions array for classif results
     im = np.array(im)
     for k in range(4):
         
-        preds_classes[k] = np.max(preds_nasa[0,:,:,k])      #Compute classification
         mask = postTraitements(preds_nasa[0,:,:,k], maskSeuils[k], surfaces[k])
-        if mask.sum() == 0:
-            preds_classes[k] = 0 
+        masks_surfaces[k] = (mask.sum() * 100) / (mask.shape[0] * mask.shape[1])
 
         if seg_option == 'Boxes':
             packages.trace_boundingBox(im, mask, color=couleurs[k], width=3, smin=surfaces[k])
@@ -177,7 +180,7 @@ def processSegmentation(model, im, couleurs, seg_option, maskSeuils, surfaces, d
             im = packages.maskInColor(im, mask, color=couleurs[k], alpha=0.3)
     
     if doClassif:
-        return im, preds_classes
+        return im, masks_surfaces
     else:
         return im
 
@@ -190,6 +193,58 @@ def iterateSegmentation(model, frames, couleurs, seg_option, maskSeuils, surface
         im = processSegmentation(model, frame, couleurs, seg_option, maskSeuils, surfaces, False)
         segmentedFrames.append(im)
     return segmentedFrames
+
+#===============================================================================
+# Création du graphique d'affichage des surfaces détectées
+#===============================================================================
+def plotClasses(source, plot_height, plot_width):
+  liste=source.data['cloud']
+  s1 = figure(width=plot_width, height=plot_height, title='Cloud surfaces detected',y_range=liste,
+            y_axis_label=None, x_axis_label = 'Surfaces (% whole image)',align='center',x_range=[0,100])
+  c1=s1.hbar(y='cloud', right='classProba',left = 0, line_color='gray',
+            height=0.5, alpha=0.8, source=source, fill_color='couleur',
+            # hover
+            hover_alpha=1, hover_color = 'couleur', hover_line_color = 'black',
+            # selection
+            selection_alpha=1, selection_line_color='couleur',
+            # non-selection
+            nonselection_alpha=0.4)
+  #Ajout des outils
+  hover1= HoverTool(renderers=[c1],tooltips=[("Cloud", " @cloud"),
+                                            ('Surface',' @classProba{0.0}%')])
+  tap1 =  TapTool(renderers=[c1])
+  tools1 = (hover1, tap1)
+  s1.add_tools(*tools1)
+  return s1
+
+#===============================================================================
+# Mise en forme du graphique d'affichage des surfaces détectées
+#===============================================================================
+def modGraphe(s, backgroundColor, textColor):
+    graph=s
+    graph.toolbar_location = None
+    graph.xgrid.grid_line_color = None
+    graph.ygrid.grid_line_color = None
+    graph.title.text_color=textColor
+    graph.title.text_font_style='normal'
+    try:
+      s.yaxis.axis_label_text_color=textColor
+      s.xaxis.axis_label_text_color=textColor
+      s.xaxis.minor_tick_line_color=None
+      graph.xaxis.major_tick_line_color=textColor
+      graph.yaxis.minor_tick_line_color=textColor
+      graph.yaxis.major_tick_line_color=textColor
+      graph.xaxis.axis_line_color=textColor
+      graph.yaxis.axis_line_color=textColor
+    except:
+      pass
+    graph.yaxis.major_label_text_color = textColor
+    graph.xaxis.major_label_text_color = textColor
+    graph.border_fill_color=backgroundColor
+    graph.background_fill_color=backgroundColor
+    graph.min_border_right=20
+    graph.toolbar_location = None
+    return graph
 
 
 def app():
@@ -267,7 +322,20 @@ def app():
         with processCol1:
             st.image(legend)
         with processCol2:
+            # affichage du graphique des surfaces, vide
+            backgroundColor="#002b36"
+            textColor="#fafafa"
             clsLocation = st.empty()
+            df = pd.DataFrame()
+            df['cloud'] = labels
+            df['classProba'] = [0]*4
+            df['couleur'] = plot_colors
+            source = ColumnDataSource(df)
+            # création du graphe
+            s = plotClasses(source, 150, 300)
+            s = modGraphe(s, backgroundColor, textColor)
+            layout = grid(row(s),sizing_mode = 'scale_both')
+            clsLocation.bokeh_chart(layout)
         with processCol3:
             st.markdown('''
               <SPAN style="font-size:13px; color:white">
@@ -280,7 +348,7 @@ def app():
               6. Then, identify clouds !
               </SPAN>
               ''', unsafe_allow_html=True)
-            gosegmentation = st.form_submit_button('Identify Cloud >>')  
+            gosegmentation = st.form_submit_button('Identify clouds >>')  
 
     video = True
     if sel_nature == 'Photo':
@@ -310,7 +378,7 @@ def app():
             #scanLocation.image(logo, use_column_width='always')
             video_frames = session_state.vidSession
             video_frames = iterateSegmentation(modelS, video_frames, couleurs, seg_option, maskSeuils, surfaces)
-            video_bytes = makeVideo(video_frames)                      #Generation video
+            video_bytes = makeVideo(video_frames)          #Generation video
             scanLocation.video(video_bytes)                #Affichage video
         else:
             scanLocation.markdown(
@@ -319,9 +387,16 @@ def app():
             )
             #scanLocation.image(logo, use_column_width='always')
             im1 = session_state.imgSession
-            im1, pred_classes = processSegmentation(modelS, im1, couleurs, seg_option, maskSeuils, surfaces, doClassif=True)
+            im1, masks_surfaces = processSegmentation(modelS, im1, couleurs, seg_option, maskSeuils, surfaces, doClassif=True)
             scanLocation.image(im1, use_column_width='always') 
-            if sum(pred_classes)!=0:
-                fig, ax = plt.subplots(figsize=(7, 3))
-                ax.bar(labels, pred_classes, color=plot_colors)  
-                clsLocation.pyplot(fig)
+            # mise en forme des données pour le graphique
+            df = pd.DataFrame()
+            df['cloud'] = labels
+            df['classProba'] = masks_surfaces
+            df['couleur'] = plot_colors
+            source = ColumnDataSource(df)
+            # création du graphe
+            s = plotClasses(source, 150, 300) #création
+            s = modGraphe(s, backgroundColor, textColor) #mise en forme
+            layout = grid(row(s),sizing_mode = 'scale_both')
+            clsLocation.bokeh_chart(layout)
