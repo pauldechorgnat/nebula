@@ -244,6 +244,7 @@ def modGraphe(s, backgroundColor, textColor):
     graph.background_fill_color=backgroundColor
     graph.min_border_right=20
     graph.toolbar_location = None
+    graph.toolbar.active_drag = None
     return graph
 
 
