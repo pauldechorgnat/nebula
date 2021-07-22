@@ -399,5 +399,5 @@ def app():
             # création du graphe
             s = plotClasses(source, 150, 300) #création
             s = modGraphe(s, backgroundColor, textColor) #mise en forme
-            layout = grid(row(s),sizing_mode = 'scale_width')
+            layout = grid(row(s),sizing_mode = 'scale_both')
             clsLocation.bokeh_chart(layout)
