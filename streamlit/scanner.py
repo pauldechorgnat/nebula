@@ -199,7 +199,7 @@ def iterateSegmentation(model, frames, couleurs, seg_option, maskSeuils, surface
 #===============================================================================
 def plotClasses(source, plot_height, plot_width):
   liste=source.data['cloud']
-  s1 = figure(width=plot_width, height=plot_height, title='Cloud surfaces detected',y_range=liste,
+  s1 = figure(width=plot_width, height=plot_height, title='Cloud surfaces detected (photo mode only)',y_range=liste,
             y_axis_label=None, x_axis_label = 'Surfaces (% whole image)',align='center',x_range=[0,100])
   c1=s1.hbar(y='cloud', right='classProba',left = 0, line_color='gray',
             height=0.5, alpha=0.8, source=source, fill_color='couleur',
@@ -399,5 +399,5 @@ def app():
             # création du graphe
             s = plotClasses(source, 150, 300) #création
             s = modGraphe(s, backgroundColor, textColor) #mise en forme
-            layout = grid(row(s),sizing_mode = 'scale_both')
+            layout = grid(row(s),sizing_mode = 'scale_width')
             clsLocation.bokeh_chart(layout)
