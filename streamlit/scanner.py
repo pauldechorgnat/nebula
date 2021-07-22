@@ -199,7 +199,7 @@ def iterateSegmentation(model, frames, couleurs, seg_option, maskSeuils, surface
 #===============================================================================
 def plotClasses(source, plot_height, plot_width):
   liste=source.data['cloud']
-  s1 = figure(width=plot_width, height=plot_height, title='Cloud surfaces detected',y_range=liste,
+  s1 = figure(width=plot_width, height=plot_height, title='Cloud surfaces detected (photo only)',y_range=liste,
             y_axis_label=None, x_axis_label = 'Surfaces (% whole image)',align='center',x_range=[0,100])
   c1=s1.hbar(y='cloud', right='classProba',left = 0, line_color='gray',
             height=0.5, alpha=0.8, source=source, fill_color='couleur',
@@ -244,6 +244,7 @@ def modGraphe(s, backgroundColor, textColor):
     graph.background_fill_color=backgroundColor
     graph.min_border_right=20
     graph.toolbar_location = None
+    graph.toolbar.active_drag = None
     return graph
 
 
