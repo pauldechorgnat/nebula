@@ -93,10 +93,14 @@ Two other possibilities enable to test the application:
         python3 -m pip install --no-cache-dir tensorflow<br>
         python3 -m pip install scikit-learn<br>
         pip install -r streamlit/requirements.txt</i></p>
+ <p>When launching the demo in both mode (runtime or tmux), 
+     please run the app as mentioned below to get dark theme active.</p>
  <li>Launch runtime session:</li>
-  <p><i>streamlit run index.py</i></p>
+  <p><i>cd streamlit<br>
+        streamlit run index.py</i></p>
  <li>Or launch tmux session:</li>
-  <p><i>tmux new -s st_instance<br>
+  <p><i>cd streamlit<br>
+        tmux new -s st_instance<br>
         streamlit run index.py</i></p>
 
 # Credits
