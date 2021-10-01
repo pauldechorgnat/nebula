@@ -43,14 +43,14 @@ def app():
              or by using sliders below. On the right, a dynamic screen will show photos or videos from the selections.</p>
           ''', unsafe_allow_html=True)
 
-    c1, c2 = st.beta_columns([1,5])
+    c1, c2 = st.columns([1,5])
     c1.image(plt.imread(os.path.join(currentdir, 'ressources/help_sat.jpg')))
     c2.markdown('''The area covered by the satellite is materialized on the main map by a green frame illustrated with a satellite icon.''', unsafe_allow_html=True)
     st.markdown('''
           <h3>Model predictions</h3>   
           <p>The lower part of the screen allows to launch the model on the extracted photos and videos.</p>
           ''', unsafe_allow_html=True)     
-    c1, c2 = st.beta_columns([1,5])
+    c1, c2 = st.columns([1,5])
     c1.image(plt.imread(os.path.join(currentdir, 'ressources/legend.png')))
     c2.markdown('''First of all, on the left, there is a legend affecting a color to each cloud formation. This will be particularly 
                useful for easily distinguish the classes on the masks resulting from the segmentation.''', unsafe_allow_html=True)
@@ -60,15 +60,15 @@ def app():
               trained for this purpose will identify and locate cloud formations.</p>
            <p>3 cloud formations visualization options are available :</p>''', unsafe_allow_html=True)
 
-    c1, c2 = st.beta_columns([1,5])
+    c1, c2 = st.columns([1,5])
     c1.image(plt.imread(os.path.join(currentdir, 'ressources/mask_help.jpg')))
     c2.markdown('''Clouds Masks: Predictions from the segmentation model are displayed as mask with the color of the cloud formation concerned.''', unsafe_allow_html=True)
 
-    c1, c2 = st.beta_columns([1,5])
+    c1, c2 = st.columns([1,5])
     c1.image(plt.imread(os.path.join(currentdir, 'ressources/boxes_help.jpg')))
     c2.markdown('''Boxes : Predictions are framed.''', unsafe_allow_html=True)
 
-    c1, c2 = st.beta_columns([1,5])
+    c1, c2 = st.columns([1,5])
     c1.image(plt.imread(os.path.join(currentdir, 'ressources/cloud_help.jpg')))
     c2.markdown('''Coloring : Clouds are colored.''', unsafe_allow_html=True)
 

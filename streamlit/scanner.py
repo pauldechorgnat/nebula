@@ -275,7 +275,7 @@ def app():
     legend = load_legend()
 
     with st.form('headerForm'):
-        headerCol1, headerCol2, headerColInter, headerCol3, headerCol4 = st.beta_columns([0.6, 0.7, 0.1, 0.6, 0.5])
+        headerCol1, headerCol2, headerColInter, headerCol3, headerCol4 = st.columns([0.6, 0.7, 0.1, 0.6, 0.5])
 
         with headerCol1:
             st.markdown('''
@@ -307,7 +307,7 @@ def app():
                 ''', unsafe_allow_html=True)
             goscan = st.form_submit_button("Scan") 
 
-        mainCol1, mainCol2 = st.beta_columns(2)
+        mainCol1, mainCol2 = st.columns(2)
 
         with mainCol1:
 
@@ -319,7 +319,7 @@ def app():
             scanLocation = st.empty()
 
     with st.form('segForm'):
-        processCol1, processCol2, processCol3 = st.beta_columns([1, 2, 2])
+        processCol1, processCol2, processCol3 = st.columns([1, 2, 2])
         with processCol1:
             st.image(legend)
         with processCol2:
