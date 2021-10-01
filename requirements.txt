@@ -1,0 +1,15 @@
+
+
+keras==2.3.1
+tensorflow==2.2.0
+keras_applications==1.0.8
+image-classifiers==1.0.0
+efficientnet==1.0.0
+segmentation_models
+bokeh==2.2.2
+gdown
+moviepy
+streamlit==0.89.0
+opencv-python-headless
+sklearn
+h5py<3.0.0
